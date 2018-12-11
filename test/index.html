@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>three test</title>
+</head>
+<body>
+	<div id="container"></div>
+</body>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/97/three.js"></script>
+<script type="text/javascript">
+	var webGlRenderer = THREE.WebGLRenderer;
+	THREE.WebGLRenderer = function (parameters) {
+		this.__proto__ = new webGlRenderer(parameters);
+		if (!parameters || parameters.name !== 'three-inspector-renderer') {
+			THREE.TargetRender = this;
+		}
+	}
+	
+	//创建渲染器
+	let renderer = new THREE.WebGLRenderer();
+	renderer.setSize(480, 640);
+	renderer.shadowMap.enabled = true;
+	document.getElementById('container').appendChild(renderer.domElement);
+	//创建场景
+	let scene = new THREE.Scene();
+	//开启雾化效果
+	// scene.fog = new THREE.Fog(0xffffff, 0.1, 2000);
+	//创建相机
+	let camera = new THREE.PerspectiveCamera(45, 480 / 640, 0.1, 20000);
+	// let camera = new THREE.OrthographicCamera(-1000, 1000, -1000, 1000, 1, 10000);
+	camera.position.set(1000, 1000, 1000);
+	camera.lookAt(200, 200, 200);
+	let axes = new THREE.AxesHelper(20);
+	axes.scale.set(1000, 1000, 1000);
+	scene.add(axes);
+
+	//创建物体
+	let geometry = new THREE.BoxBufferGeometry(100, 100, 100);
+	let material = new THREE.MeshBasicMaterial({
+		color: 0xff0000,
+		wireframe: false
+	});
+	let cube1 = new THREE.Mesh(geometry, material);
+	cube1.name = 'cube1';
+	cube1.castShadow = true;
+	scene.add(cube1);
+
+	let cube2 = new THREE.Mesh(geometry, material);
+	cube2.name = 'cube2';
+	cube2.position.set(0, 0,200);
+	scene.add(cube2);
+
+	let cube3 = new THREE.Mesh(geometry, material);
+	cube3.name = 'cube3';
+	cube3.position.set(0, 0, -200);
+	scene.add(cube3);
+
+	let planeGeometry = new THREE.PlaneBufferGeometry(1000, 1000);
+	let planeMaterial = new THREE.MeshBasicMaterial({
+		color: 0xffff00,
+	});
+	let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+	plane.name = 'plane';
+	plane.receiveShadow = true;
+	plane.rotation.set(-Math.PI / 2, 0, 0);
+	plane.position.set(0, -150, 0);
+	
+	scene.add(plane);
+	
+
+	let light = new THREE.AmbientLight(0xff0000);
+	scene.add(light);
+	
+	//点光源
+	let pointLight = new THREE.PointLight(0x00ff00);
+	pointLight.distance = 1000;
+	pointLight.position.set(300, 300, 300);
+	pointLight.castShadow = true;
+	scene.add(pointLight);
+	function render() {
+		renderer.render(scene, camera);
+		requestAnimationFrame(render);
+	}
+	render();
+</script>
+</html>

@@ -1,0 +1,13 @@
+html {
+    min-height: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: "Lucida Grande", sans-serif;
+    font-size: 12px;
+    min-height: 100vh;
+  }
+  [contenteditable] {
+    cursor: text;
+  }
+  
