@@ -1,1 +1,1 @@
-### A chrome inspector for three.js
+**A chrome inspector for three.js**
