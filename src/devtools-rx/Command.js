@@ -15,7 +15,10 @@ export default class Command {
       );
     this.id = message.id;
   }
-
+  /**
+   * @param {String} response 消息类型
+   * @param {Obejct} data 消息体
+   */
   respond(response, data) {
     debug && console.log(`respond "${response}" `, data);
     this.connection.postMessage({

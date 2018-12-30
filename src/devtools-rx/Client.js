@@ -10,7 +10,7 @@ export default class Client {
    * @param {number|object} recipient
    */
   constructor(connection, recipient) {
-    this.isBroadcast = typeof recipient !== "number";
+    this.isBroadcast = typeof recipient !== "number"; //如果recipient不为数字，那么为广播消息
     if (typeof recipient === "string") {
       this.recipient = { name: recipient };
     } else {
@@ -72,9 +72,9 @@ export default class Client {
   /**
    * Send a command and stream the replys
    *
-   * @param {string} command
-   * @param {*} data
-   * @returns {Observable}
+   * @param {string} command 消息类型
+   * @param {*} data 消息体
+   * @returns {Observable} 返回一个可订阅对象
    */
   stream(command, data) {
     const message$ = stream(this, command, data);

@@ -1,6 +1,7 @@
 <template>
   <div 
-    class="treeview" 
+    class="treeview"
+    :class="platformClass" 
     tabindex="1" 
     @keydown.right.prevent="navigateRight" 
     @keydown.left.prevent="navigateLeft" 
@@ -10,27 +11,26 @@
       v-for="row in rows" 
       :key="row.node.id" 
       :data-id="row.node.id" 
-      :class="{'treeview__item--selected': selected && row.node.id === selected.id, 'treeview__item--found': row.node.found}" 
-      class="treeview__item" 
+      :class="{'treeview-item-selected': selected && row.node.id === selected.id, 'treeview-item-found': row.node.found}" 
+      class="treeview-item" 
       @mousedown="select(row.node)" 
       @mouseenter="highlight(row.node)"
       @dblclick="toggle(row.node)" 
       @mouseleave="highlight(false)">
       <div 
         :style="{width: (row.indent * 14) + 'px'}"
-        class="treeview__indent" />
-      <div class="treeview__toggle">
+        class="treeview-indent" />
+      <div class="treeview-toggle">
         <div 
           v-if="row.node.children && row.node.collapsed" 
-          class="treeview__toggle__expand"
+          class="treeview-toggle-expand"
           @click="expand(row.node)"/>
         <div 
           v-if="row.node.children && !row.node.collapsed" 
-          class="treeview__toggle__collapse" 
+          class="treeview-toggle-collapse" 
           @click="collapse(row.node)"/>
       </div>
-      <div 
-        class="treeview__label" >{{ row.title }}</div>
+      <div class="treeview-label" >{{ row.title }}</div>
     </div>
   </div>
 </template>
@@ -38,7 +38,7 @@
 <script>
 import { filter, map, switchMap } from "rxjs/operators";
 import latestInspector$ from "../services/latestInspector$";
-
+import getPlatForm from "../utils.js"
 export default {
   subscriptions() {
     const inspector$ = latestInspector$.pipe(
@@ -50,14 +50,12 @@ export default {
         switchMap(inspector => inspector.tree$),
         map(this.flattenTree)
       ),
-      tree: inspector$.pipe(
-        switchMap(inspector => inspector.tree$)
-      ),
       select: latestInspector$.method("select"),
       expand: latestInspector$.method("expand"),
       toggle: latestInspector$.method("toggle"),
       collapse: latestInspector$.method("collapse"),
-      highlight: latestInspector$.method("highlight")
+      highlight: latestInspector$.method("highlight"),
+      platformClass: "platform-" + getPlatForm()
     };
   },
   methods: {
@@ -134,11 +132,17 @@ export default {
 <style lang="scss">
 .treeview {
   padding: 4px 0;
+  &.platform-mac {
+		font-family: Menlo, monospace;
+	}
+	&.platform-windows {
+		font-family: Consolas, "Lucida Console", "Courier New", monospace;
+	}
 }
 
-.treeview__item {
+.treeview-item {
   position: relative;
-  color: #808;
+  color: #5ba47a;
   padding: 1px;
   display: flex;
   user-select: none;
@@ -147,13 +151,13 @@ export default {
   }
 }
 
-.treeview__toggle {
+.treeview-toggle {
   position: relative;
   width: 12px;
   height: 12px;
 }
 
-.treeview__toggle__expand {
+.treeview-toggle-expand {
   border: 4px solid transparent;
   border-left-color: #6e6e6e;
   border-left-width: 6px;
@@ -165,7 +169,7 @@ export default {
   }
 }
 
-.treeview__toggle__collapse {
+.treeview-toggle-collapse {
   border: 4px solid transparent;
   border-top-color: #6e6e6e;
   border-top-width: 6px;
@@ -177,8 +181,8 @@ export default {
   }
 }
 
-.treeview__item--hovered,
-.treeview__item:hover:not(.treeview__item--selected) {
+.treeview-item--hovered,
+.treeview-item:hover:not(.treeview-item-selected) {
   &:before {
     content: "";
     position: absolute;
@@ -195,14 +199,14 @@ export default {
   }
 }
 
-.treeview__item--selected {
+.treeview-item-selected {
   background: #d4d4d4;
   .dark-mode.dark-mode & {
     background: #342e25;
   }
 }
 
-.treeview__item--found {
+.treeview-item-found {
   &:after {
     content: "";
     position: absolute;
@@ -218,7 +222,7 @@ export default {
 .treeview:focus {
   outline: none;
 
-  .treeview__item--selected {
+  .treeview-item-selected {
     background: #3879d9;
     color: white;
     .dark-mode & {
@@ -226,13 +230,13 @@ export default {
       color: #333;
     }
 
-    .treeview__toggle__collapse {
+    .treeview-toggle-collapse {
       border-top-color: white;
       .dark-mode & {
         border-top-color: #333;
       }
     }
-    .treeview__toggle__expand {
+    .treeview-toggle-expand {
       border-left-color: white;
       .dark-mode & {
         border-left-color: #333;

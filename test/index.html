@@ -3,20 +3,22 @@
 <head>
 	<meta charset="UTF-8">
 	<title>three test</title>
+	<style>
+		@font-face {
+			font-family: "Roboto-Regular";
+			src: url(../src/asset/Roboto-Regular.woff2);
+			font-style: normal;
+		}
+	</style>
 </head>
 <body>
 	<div id="container"></div>
+	<div>
+		Render
+	</div>
 </body>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/97/three.js"></script>
 <script type="text/javascript">
-	var webGlRenderer = THREE.WebGLRenderer;
-	THREE.WebGLRenderer = function (parameters) {
-		this.__proto__ = new webGlRenderer(parameters);
-		if (!parameters || parameters.name !== 'three-inspector-renderer') {
-			THREE.TargetRender = this;
-		}
-	}
-	
 	//创建渲染器
 	let renderer = new THREE.WebGLRenderer();
 	renderer.setSize(480, 640);
@@ -83,5 +85,8 @@
 		requestAnimationFrame(render);
 	}
 	render();
+	THREE.$$RendererList = [];
+	THREE.$$RendererList.push(renderer);
+	renderer.name = 'RenderDemo';
 </script>
 </html>

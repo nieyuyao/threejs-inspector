@@ -1,10 +1,10 @@
 <template>
-  <div class="detailview">
+  <div class="detailview" :class="platformClass">
     <div 
       v-for="field in fields" 
       :key="field.path"
-      class="detailview__item">
-      <div class="detailview__label">{{ field.path }}</div>
+      class="detailview-item">
+      <div class="detailview-label">{{ field.path }}</div>
       <DetailValue 
         :field="field" 
         @change="setProperty(field.path, $event)"/>
@@ -17,7 +17,7 @@ import { empty, interval } from "rxjs";
 import { switchMap, merge } from "rxjs/operators";
 import DetailValue from "./DetailValue.vue";
 import latestInspector$ from "../services/latestInspector$.js";
-
+import getPlatForm from "../utils.js"
 const POLL_INTERVAL = 567; // Weird interval to be sure to be out of sync with a looping animation.
 
 export default {
@@ -36,7 +36,8 @@ export default {
           );
         })
       ),
-      setProperty: latestInspector$.method("setProperty")
+      setProperty: latestInspector$.method("setProperty"),
+      platformClass: "platform-" + getPlatForm()
     };
   }
 };
@@ -45,16 +46,22 @@ export default {
 <style lang="scss">
 .detailview {
   padding: 4px;
+  &.platform-mac {
+		font-family: Menlo, monospace;
+	}
+	&.platform-windows {
+		font-family: Consolas, "Lucida Console", "Courier New", monospace;
+	}
 }
 
-.detailview__item {
+.detailview-item {
   display: flex;
   margin-bottom: 2px;
 }
 
-.detailview__label {
+.detailview-label {
   display: inline-block;
-  color: #c80000;
+  color: #5ba47a;
   padding-right: 5px;
   &:after {
     content: ":";

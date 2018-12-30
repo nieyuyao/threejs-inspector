@@ -2,30 +2,36 @@
   <div 
     :class="{'dark-mode': darkMode}" 
     class="three-panel">
-    <Toolbar>
+    <Toolbar class="tool-bar">
       <!-- <Toggle icon="node-search" v-if="isConnected" :value="selectMode" @change="toggleSelectMode" title="Select a node in the scene to inspect it"></Toggle> -->
       <button @click="reload">Reconnect</button>
       <input 
         v-model="search" 
-        class="three-panel__search"
+        class="three-panel-search"
         type="search" 
         placeholder="Find by name"
         @keyup.enter="searchFilter(search)">
     </Toolbar>
-    <Lights></Lights>
-    <Cameras></Cameras>
-    <SplitView 
-      v-if="injected" 
-      class="three-panel__body">
-      <TreeView :search="search"/>
-      <DetailView/>
-    </SplitView>
-    <div 
-      v-if="!injected && messageVisible"
-      class="three-panel__message">
-      Looking for
-      <span class="three-panel__inline-logo">three.js</span> ...
-      <!-- <button v-if="instance === null" @click="detect">Retry</button> -->
+    <div class="three-panel-body">
+      <Threes class="renderer-panel-body" v-if="messageVisible"></Threes>
+      <SplitView 
+        v-if="injected" 
+        class="renderer-inject-body">
+        <TreeView :search="search"/>
+        <DetailView/>
+      </SplitView>
+      <div 
+        v-if="!messageVisible"
+        class="renderer-panel-message">
+        Looking for
+        <span class="renderer-panel-inline-logo">three.js</span> ...
+      </div>
+      <div 
+        v-if="!injected && messageVisible"
+        class="renderer-inject-message">
+        Choose one renderer for
+        <span class="renderer-panel-inline-logo">inspect</span> ...
+      </div>
     </div>
   </div>
 </template>
@@ -37,12 +43,14 @@ import Toggle from "./Toggle.vue";
 import SplitView from "./SplitView.vue";
 import TreeView from "./TreeView.vue";
 import DetailView from "./DetailView.vue";
+import Threes from './Threes.vue';
 import connection from "../services/connection";
 import active$ from "../services/active$";
 import latestInspector$ from "../services/latestInspector$";
-import { map, switchMap, startWith } from "rxjs/operators";
+import { map, switchMap, startWith, tap } from "rxjs/operators";
 export default {
-  components: { Toolbar, Toggle, SplitView, TreeView, DetailView },
+  name: 'ThreePanel',
+  components: { Toolbar, Toggle, SplitView, TreeView, DetailView, Threes },
   data() {
     return {
       search: ""
@@ -98,54 +106,82 @@ export default {
 
 <style lang="scss">
 .three-panel {
-  cursor: default;
-  font-size: 11px !important;
-  font-family: Menlo, monospace;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100vh;
+  font-size: 11px !important;
+  font-family: Menlo, monospace;
   color: #222;
+  cursor: default;
 }
-
 .dark-mode {
   color: #bdc6cf;
 }
-
-.three-panel__body {
-  flex-grow: 1;
-}
-
-.three-panel__message {
-  height: 100%;
-  font-size: 24px;
-  color: rgb(75%, 75%, 75%);
-  font-weight: bold;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.three-panel__inline-logo {
-  display: inline-block;
-  // background: url(./icon.png) no-repeat;
-  background-size: contain;
-  color: transparent;
-  width: 86px;
-  height: 31px;
-  margin-left: 15px;
-  margin-right: 10px;
-  margin-top: -5px;
-}
-.three-panel__search {
-  border: 1px solid #d8d8d8;
-  padding: 2px 3px 1px 3px;
-  border-radius: 2px;
-  font: 12px ".SFNSDisplay-Regular", "Helvetica Neue", "Lucida Grande",
-    sans-serif;
-  &:focus {
-    outline: none;
+.tool-bar {
+  button {
+    color: #64b587;
+  }
+  .three-panel-search {
+    border: 1px solid #fff;
+    padding: 2px 3px 1px 3px;
+    border-radius: 2px;
+    font: 12px sans-serif;
+    &:focus {
+      outline: none;
+    }
   }
 }
+.three-panel-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  .renderer-panel-body {
+    width: 20%;
+  }
+  .renderer-inject-body {
+    flex-grow: 1;
+  }
+  .renderer-panel-message {
+    height: 100%;
+    font-size: 24px;
+    color: rgb(75%, 75%, 75%);
+    font-weight: bold;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .renderer-panel-inline-logo {
+      display: inline-block;
+      width: 86px;
+      height: 31px;
+      margin-left: 15px;
+      margin-right: 10px;
+      color: transparent;
+      background-size: contain;
+    }
+  }
+  .renderer-inject-message {
+    height: 100%;
+    font-size: 24px;
+    color: rgb(75%, 75%, 75%);
+    font-weight: bold;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .renderer-inject-inline-logo {
+      display: inline-block;
+      width: 86px;
+      height: 31px;
+      margin-left: 15px;
+      margin-right: 10px;
+      color: transparent;
+      background-size: contain;
+    }
+  }
+}
+
+
+
 </style>

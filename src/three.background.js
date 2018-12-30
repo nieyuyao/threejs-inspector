@@ -33,24 +33,23 @@ connection$
         filter(message => message.broadcast === "DETECTED")
       );
       return detected$.pipe(
-        tap(message => {
+        tap(() => {
           const tabId = connection.tabId;
           debug &&
             console.log("DETECTED", {
-              tabId,
-              index: message.data.index,
-              version: message.data.version
+              tabId
             });
           chrome.pageAction.show(tabId);
           chrome.pageAction.setTitle({
             tabId,
-            title: "Three.JS " + message.data.version
+            title: "Three.JS"
           });
           chrome.pageAction.setIcon({
             tabId,
             path: {
-              "16": "icon.png",
-              "32": "icon.png"
+              "16": "icons/icon-16.png",
+              "32": "icons/icon-32.png",
+              "48": "icons/icon-48.png"
             }
           });
         })

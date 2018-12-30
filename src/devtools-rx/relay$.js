@@ -10,8 +10,10 @@ export default connection$.pipe(
   mergeMap(connection =>
     merge(
       connection.disconnect$.pipe(
+        //connections$传递connetion列表
         withLatestFrom(connections$),
         tap(([, connections]) => {
+          //如果opened中有此connection，关闭此connection，发出断开连接消息
           if (opened[connection.id]) {
             let count = 0;
             for (const id of Object.keys(opened[connection.id])) {
@@ -24,6 +26,7 @@ export default connection$.pipe(
                 count++;
               }
             }
+            //从opened中删除connection
             delete opened[connection.id];
             debug &&
               console.log(
@@ -50,7 +53,7 @@ export default connection$.pipe(
       connection.message$.pipe(
         withLatestFrom(connections$),
         tap(([message, connections]) => {
-          console.log(message);
+          //广播消息'DETECTED',devtools发出的'INSTANCES'
           if (message.broadcast) {
             const command = {
               command: message.broadcast,
@@ -63,9 +66,11 @@ export default connection$.pipe(
               filter.tabId = connection.tabId;
             }
             const targets = Object.values(connections).filter(target => {
+              //如果connection.id等于target.id说明target与connection相同
               if (target.id === connection.id) {
                 return false; // Don't broadcast back to sender
               }
+              //如果filter.name不等于target.name
               if (filter.name && target.name !== filter.name) {
                 return false; // Only to connection with a specific name
               }
@@ -92,11 +97,11 @@ export default connection$.pipe(
                   targets.length +
                   " clients"
               );
-
             targets.forEach(target => {
               target.postMessage(command);
             });
           } else if (message.to === 0) {
+            //emit消息
             if (message.command === "TAB_ID") {
               connection.tabId = message.data;
             } else if (message.command === "LOG") {
@@ -133,7 +138,7 @@ export default connection$.pipe(
             opened[target.id][connection.id] = true;
             const _message = Object.assign({}, message);
             _message.from = connection.id;
-            if (connection.sender.frameId !== 0) {
+            if (connection.sender.frameId !== void 0) {
               _message.frameURL = connection.sender.url;
             }
             delete _message.to;

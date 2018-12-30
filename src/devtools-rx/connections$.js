@@ -13,6 +13,7 @@ const connections$ = Observable.create(observer => {
       console.log(
         "connection [" + connection.name + " " + connection.id + "] added"
       );
+    //发出连接后的列表
     observer.next(connections);
     disconnectSubscriptions.push(
       connection.disconnect$.subscribe(() => {
@@ -21,6 +22,7 @@ const connections$ = Observable.create(observer => {
             "connection [" + connection.name + " " + connection.id + "] removed"
           );
         delete connections[connection.id];
+        //发出断开连接后的连接列表
         observer.next(connections);
       })
     );
@@ -31,6 +33,7 @@ const connections$ = Observable.create(observer => {
   };
 }).pipe(publishReplay(1));
 
+//启动connection执行
 export const subscription = connections$.connect();
 
 export default connections$;

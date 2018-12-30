@@ -9,15 +9,12 @@ if (debug) {
 }
 
 const globalHook = {
-  reportDetection(recipient = {}) {
+  reportDetection() {
     /* global __THREE_INSPECTOR_GLOBAL_HOOK__ RECIPIENT */
     this.executeInContext(
       function() {
-        __THREE_INSPECTOR_GLOBAL_HOOK__.reportDetection(window, RECIPIENT);
-      }.toString(),
-      {
-        RECIPIENT: recipient
-      }
+        __THREE_INSPECTOR_GLOBAL_HOOK__.reportDetection(window);
+      }.toString()
     );
   },
   reportInstances(recipient) {
@@ -31,17 +28,33 @@ const globalHook = {
       }
     );
   },
-  reportInspector(index, recipient) {
+  reportInspector(indexs, recipient) {
     /* global __THREE_INSPECTOR_GLOBAL_HOOK__ INDEX RECIPIENT */
     this.executeInContext(
       function() {
         __THREE_INSPECTOR_GLOBAL_HOOK__.reportInspector(INDEX, RECIPIENT);
       }.toString(),
       {
-        INDEX: index,
+        INDEX: indexs,
         RECIPIENT: recipient
       }
     );
+  },
+  //如果devtools进入后台
+  reportBackStage() {
+    this.executeInContext(
+      function() {
+        __THREE_INSPECTOR_GLOBAL_HOOK__.reportBackStage();
+      }.toString()
+    );
+  },
+  //如果devtools进入后台
+  reportFrontStage() {
+    this.executeInContext(
+      function() {
+        __THREE_INSPECTOR_GLOBAL_HOOK__.reportFrontStage();
+      }.toString()
+    )
   },
   disable() {
     this.executeInContext(
@@ -93,7 +106,7 @@ const globalHook = {
       window.postMessage(
         {
           broadcast: command,
-          filter: recipient,
+          filter: recipient, //通过filer标志发出的消息
           data,
           _threeInspector: uid
         },
@@ -118,76 +131,81 @@ const globalHook = {
     let InspectorPromise = false;
     // Public
     window.__THREE_INSPECTOR_GLOBAL_HOOK__ = {
-      inspectors: [],
-      register(instance) {
-        const exists = _instances.find(
-          existing => existing.THREE === instance.THREE
-        );
-        if (exists) {
-          if (instance.THREE) {
-            exists.THREE = instance.THREE;
-          }
-          return;
-        }
-        const i = _instances.push(Object.assign({ status: "IDLE" }, instance));
-        broadcast(
-          "DETECTED",
-          { channel: "devtools_page" },
-          {
-            index: i - 1,
-            version: instance.THREE.REVISION
-          }
-        );
+      inspectors: {},
+      inspecting: "",
+      register() {
+        //广播DETECTED
+        broadcast("DETECTED", { channel: "devtools_page" });
       },
-
       reportInstances(recipient) {
-        this.reportDetection(window, recipient);
         const data = _instances.map(instance => ({
           version: instance.THREE.REVISION,
-          status: instance.status
+          id: instance.id,
+          rendererList: instance.THREE.$$RendererList.map(renderer => ({
+            name: renderer.constructor.name,
+            status: "IDLE"
+          }))
         }));
         respond("INSTANCES", data, recipient);
       },
-
       //检查页面中的three.js
-      reportDetection(globals, recipient) {
-        if (globals.THREE) {
-          // global variable
-          this.register({ THREE: globals.THREE });
-        } else {
-          for (let i = 0; i < globals.frames.length; i++) {
-            try {
-              this.reportDetection(globals.frames[i], recipient);
-            } catch (err) {
-              if (err.code === 18 && err.name === "SecurityError") {
-                // DOMException: Blocked a frame with origin "..." from accessing a cross-origin frame.
-                return;
-              }
-              if (debug) {
-                console.warn(err);
-              }
+      reportDetection(globals) {
+        _instances.splice(0, _instances.length);
+        this.dectectInstance(globals);
+        if (_instances.length > 0) {
+          this.register();
+        }
+      },
+      dectectInstance(globals) {
+        if (globals.THREE && globals.THREE.$$RendererList) {
+          //捕获到的THREE实例放到_instances中
+          _instances.push({
+            THREE: globals.THREE,
+            id: _instances.length
+          });
+        }
+        for (let i = 0; i < globals.frames.length; i++) {
+          try {
+            this.reportDetection(globals.frames[i]);
+          } catch (err) {
+            if (err.code === 18 && err.name === "SecurityError") {
+              // DOMException: Blocked a frame with origin "..." from accessing a cross-origin frame.
+              return;
+            }
+            if (debug) {
+              console.warn(err);
             }
           }
         }
       },
-
-      reportInspector(index, recipient) {
-        if (!_instances[index]) {
-          respond("ERROR", "OUT_OF_BOUNDS", recipient);
-          return;
+      reportInspector(indexs, recipient) {
+        const { threeIndex, rendererIndex } = indexs;
+        const threeInstance = _instances[threeIndex];
+        if (!threeInstance) {
+          respond("ERROR", "THREE_INSTANCE_NOT_EXIT", recipient);
+        }
+        const rendererInstance = threeInstance.THREE.$$RendererList[rendererIndex];
+        if (!rendererInstance) {
+          respond("ERROR", "THREE_RENDERER_NOT_EXIT", recipient);
         }
         threePanelId = recipient.to;
-        if (_instances[index].status !== "IDLE") {
-          respond("INSPECTOR", _instances[index].inspector, recipient);
+        const sign = `$${threeIndex}$${rendererIndex}`;
+        if (this.inspector && this.inspecting !== sign) {
+          this.inspectors[this.inspecting].status = "IDLE";
+        }
+        if (rendererInstance.status && rendererInstance.status !== "IDLE") {
+          respond("INSPECTOR", sign, recipient);
           return;
         }
-        _instances[index].status = "LOADING";
+        rendererInstance.status = "LOADING";
         this.injectInspector()
           .then(Inspector => {
-            this.inspectors.push(new Inspector(_instances[index], emit));
-            _instances[index].inspector = this.inspectors.length - 1;
-            _instances[index].status = "INJECTED";
-            respond("INSPECTOR", _instances[index].inspector, recipient);
+            rendererInstance.THREE = threeInstance.THREE;
+            rendererInstance.inspector = sign;
+            this.inspecting = sign;
+            this.inspectors[sign] = new Inspector(rendererInstance, emit);
+            rendererInstance.status = "INJECTED";
+            respond("INSPECTOR", sign, recipient);
           })
           .catch(error => {
             respond("ERROR", error.message, recipient);
@@ -202,7 +220,7 @@ const globalHook = {
           return InspectorPromise;
         }
         InspectorPromise = new Promise(resolve => {
-          const script = window.document.createElement("script");
+          const script = document.createElement("script");
           script.src = INSPECTOR_SCRIPT_URL;
           const html = document.getElementsByTagName("html")[0];
           script.onload = () => {
@@ -212,11 +230,22 @@ const globalHook = {
         });
         return InspectorPromise;
       },
-
-      disable() {
-        for (const inspector of this.inspectors) {
-          inspector.disable();
+      reportBackStage() {
+        const { inspecting } = this;
+        if (inspecting) {
+          this.inspectors[inspecting].disable();
         }
+      },
+      reportFrontStage() {
+        const { inspecting } = this;
+        if (inspecting) {
+          this.inspectors[inspecting].enable();
+        }
+      },
+      disable() {
+        Object.values(this.inspectors).forEach(inspector => {
+          inspector.disable();
+        });
       }
     };
   }
@@ -245,6 +274,12 @@ port.onMessage.addListener(message => {
         id: message.id
       });
       break;
+    case "BACKSTAGE":
+      globalHook.reportBackStage();
+      break;
+    case "FRONTSTAGE":
+      globalHook.reportFrontStage();
+      break;
     case "DISCONNECTED":
       globalHook.disable();
       break;
@@ -257,7 +292,7 @@ window.onmessage = function(event) {
     delete event.data._threeInspector;
     debug && console.log("port.postMessage", event.data);
     port.postMessage(event.data);
-    if (event.data.response === "DETECTED") {
+    if (event.data.broadcast === "DETECTED") {
       isDetected = true;
     }
   }

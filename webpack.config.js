@@ -63,6 +63,10 @@ const baseConfig = {
       {
         test: /\.png$/,
         loader: "url-loader"
+      },
+      {
+        test: /\.(woff|woff2)$/,
+        loader: "file-loader"
       }
     ]
   },
