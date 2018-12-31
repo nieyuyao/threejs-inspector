@@ -231,15 +231,13 @@ const globalHook = {
         return InspectorPromise;
       },
       reportBackStage() {
-        const { inspecting } = this;
-        if (inspecting) {
-          this.inspectors[inspecting].disable();
+        if (this.inspecting) {
+          this.inspectors[this.inspecting].disable();
         }
       },
       reportFrontStage() {
-        const { inspecting } = this;
-        if (inspecting) {
-          this.inspectors[inspecting].enable();
+        if (this.inspecting) {
+          this.inspectors[this.inspecting].enable();
         }
       },
       disable() {

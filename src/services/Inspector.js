@@ -50,6 +50,10 @@ export default class Inspector {
    * Path the Renderer.render method to get a hold of the stage object(s)
    */
   patch() {
+    if (this.patched) {
+      this.instance.render = this.patched;
+      this.patched = null;
+    }
     const Renderer = this.instance;
     if (Renderer.render) {
       const renderMethod = Renderer.render;

@@ -2,7 +2,7 @@ import { of } from "rxjs";
 import { switchMap, startWith, merge, map, tap } from "rxjs/operators";
 import connection from "./connection";
 import active$ from "./active$";
-const stageClient = connection.to("content_scripts")
+const stageClient = connection.to("content_scripts");
 const instances$ = active$.pipe(
   tap(active => {
     active ? stageClient.send("FRONTSTAGE") : stageClient.send("BACKSTAGE");

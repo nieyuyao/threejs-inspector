@@ -63,12 +63,12 @@ export default class InspectorHighlight {
         rangeNdcPos.z = 0;
         //
         let size;
-        if (inspector.instance && inspector.instance.THREE.TargetRender) {
-          size = inspector.instance.THREE.TargetRender.getSize();
+        if (inspector.instance && inspector.instance.THREE) {
+          size = inspector.instance.getSize();
         } else {
           size = {
             width: window.innerWidth,
-            height: window.height
+            height: window.innerHeight
           };
         }
         //
