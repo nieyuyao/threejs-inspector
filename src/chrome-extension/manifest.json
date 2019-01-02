@@ -5,8 +5,9 @@
   "version": "0.0",
   "page_action": {
     "default_icon": {
-      "16": "icon.png",
-      "32": "icon.png"
+      "16": "icons/icon-16-gray.png",
+      "32": "icons/icon-32-gray.png",
+      "48": "icons/icon-48-gray.png"
     },
     "default_title": "ThreeJS Inspector"
   },

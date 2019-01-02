@@ -1,42 +1,55 @@
-import { Observable, of } from "rxjs";
-import { map, switchMap, shareReplay, startWith } from "rxjs/operators";
+import { Observable, of, Subject } from "rxjs";
+import {
+  map,
+  switchMap,
+  shareReplay,
+  startWith,
+  withLatestFrom,
+  filter
+} from "rxjs/operators";
 import AsyncInspector from "./AsyncInspector";
 import connection from "./connection";
 import instances$ from "./instances$";
 
-/**
- * Select in the last frame (with three) the last detected three instance.
- */
-export const latestInstance$ = instances$.pipe(
-  map(frames => {
-    if (frames.length === 0) {
+const relaySubject = new Subject();
+
+export const renderer$ = instances$.pipe(
+  map(frame => {
+    if (!frame || frame.length === 0) {
       return null;
     }
-    const frame = frames[frames.length - 1];
-    if (frame.data.length === 0) {
-      return null;
-    }
-    const instance = frame.data[frame.data.length - 1];
     return {
-      version: instance.version,
-      status: instance.status,
       connection: frame.from,
       frameURL: frame.frameURL,
-      index: frame.data.length - 1
+      data: frame.data
     };
-  })
+  }),
+  filter(frame => frame !== null)
 );
+renderer$.select = function(query) {
+  let queryArray = query.split(".");
+  queryArray = queryArray.slice(0, 2);
+  const queryObject = {};
+  queryObject.threeIndex = Number(queryArray[0]);
+  queryObject.rendererIndex = Number(queryArray[1]);
+  relaySubject.next(queryObject);
+};
 /**
  * Create a AsyncInspector for the detected instance
  */
-const latestInspector$ = latestInstance$.pipe(
+const latestInspector$ = relaySubject.pipe(
+  withLatestFrom(renderer$),
+  map(([queryObject, frame]) => Object.assign(queryObject, frame)),
   switchMap(instance => {
     if (instance === null) {
       return of(null);
     }
     return connection
       .to(instance.connection)
-      .get("INSPECTOR", instance.index)
+      .get("INSPECTOR", {
+        threeIndex: instance.threeIndex,
+        rendererIndex: instance.rendererIndex
+      })
       .pipe(
         switchMap(index =>
           Observable.create(observer => {
@@ -55,7 +68,6 @@ const latestInspector$ = latestInstance$.pipe(
   startWith(null),
   shareReplay(1)
 );
-
 latestInspector$.method = function(method) {
   return this.pipe(
     map(

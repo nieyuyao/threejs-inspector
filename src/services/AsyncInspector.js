@@ -14,7 +14,7 @@ export default class AsyncInspector {
     if (typeof index === "object") {
       this.inspector = index;
     } else {
-      this.path = "__THREE_INSPECTOR_GLOBAL_HOOK__.inspectors[" + index + "]";
+      this.path = "__THREE_INSPECTOR_GLOBAL_HOOK__.inspectors['" + index + "']";
       this.target = target;
     }
     this.local = {
@@ -36,7 +36,6 @@ export default class AsyncInspector {
       publishReplay(1),
       refCount()
     );
-
     this.selected$ = mergeObservables(
       defer(() => this.call("outliner.selected")),
       connection.on("SELECTED").pipe(map(message => message.data)),
@@ -91,6 +90,10 @@ export default class AsyncInspector {
     return this.call("outliner.highlight", node.id);
   }
 
+  captureRendererList() {
+    return this.call("captureRendererList");
+  }
+
   call(method, ...args) {
     if (!chrome.devtools) {
       const dot = method.indexOf(".");
@@ -113,7 +116,7 @@ export default class AsyncInspector {
       method +
       "(" +
       args.map(arg => JSON.stringify(arg)).join(", ") +
-      ")";
+      ");";
     return asyncEval(code, this.target);
   }
 }

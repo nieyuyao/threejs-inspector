@@ -13,6 +13,8 @@ export default fromChromeEvent(chrome.runtime.onConnect).pipe(
     }
     return connection;
   }),
+  //不会发送任何值直到connect()被调用
   publish(),
+  //相当于调用connect()
   refCount()
 );

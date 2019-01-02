@@ -1,74 +1,57 @@
+import typesConfig from "../configs/registerTypesConfig";
 export default class TypeDetection {
   constructor() {
     this.constructors = [];
     this.names = [];
   }
-
+  /**
+   * 检查节点的类型
+   * @param {node} node Three.js中的物体
+   */
   detectType(node) {
+    //如果节点没有构造函数
     if (!node.constructor) {
       return "Unknown";
     }
     const index = this.constructors.indexOf(node.constructor);
     if (index === -1) {
-      return this.resolveType(node.constructor.name || "Anonymous", node, [
-        node.constructor
-      ]);
+      return this.resolveType(node);
     }
     return this.names[index];
   }
-
-  resolveType(name, node) {
-    const types = [];
-    for (const i in this.constructors) {
-      if (node instanceof this.constructors[i]) {
-        types.push(i);
+  /**
+   * 解析节点类型
+   * @param {String} name 构造函数名称
+   * @param {node} node
+   */
+  resolveType(node) {
+    const { constructors, names } = this;
+    for (const i in constructors) {
+      if (node instanceof constructors[i]) {
+        return names[i];
+      }
+      const prototypeConstructor = constructors[i].prototype.constructor;
+      const j = constructors.indexOf(prototypeConstructor);
+      if (node instanceof prototypeConstructor && j > -1) {
+        return names[j];
       }
     }
-    if (types.length === 0) {
-      return name;
-    }
-    if (types.length === 1) {
-      return name + ":" + this.names[types[0]];
-    }
-    const scores = [];
-    for (let i = 0; i < types.length; i++) {
-      const type = this.constructors[types[i]].prototype;
-      scores[i] = 0;
-      for (const j of types) {
-        scores[i] += type instanceof this.constructors[j];
-      }
-    }
-    return name + " (" + this.names[types[indexOfMax(scores)]] + ")";
+    return "";
   }
-
-  registerTypes(name, object, depth = 1) {
-    if (depth === 0 || typeof object !== "object") {
-      return;
-    }
+  registerTypes(object) {
     for (const prop in object) {
-      if (typeof object[prop] === "function") {
+      if (typeof object[prop] === "function" && isRegisterType(prop)) {
         this.constructors.push(object[prop]);
-        this.names.push(name + prop);
-      } else if (typeof object[prop] === "object") {
-        this.registerTypes(name + prop + ".", object[prop], depth - 1);
+        this.names.push(prop);
       }
     }
   }
 }
-function indexOfMax(arr) {
-  if (arr.length === 0) {
-    return -1;
-  }
-
-  let max = arr[0];
-  let maxIndex = 0;
-
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] > max) {
-      maxIndex = i;
-      max = arr[i];
+function isRegisterType(prop) {
+  for (const rule of typesConfig.rules) {
+    if (rule.test.test(prop)) {
+      return true;
     }
   }
-
-  return maxIndex;
+  return false;
 }

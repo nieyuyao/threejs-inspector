@@ -17,7 +17,8 @@ export default class InspectorOutliner {
         id: 0,
         type: "root",
         collapsed: false,
-        parent: null
+        parent: null,
+        children: []
       }
     };
     this.nodes = [this.root];
@@ -127,17 +128,19 @@ export default class InspectorOutliner {
       InspectorHighlight.node = false;
     }
   }
-
-  detectScene(container) {
-    if (this.root.children.indexOf(container) === -1) {
-      // container was rendered for the first time?
-      this.root.children.push(container);
-      this.serialize(container);
-      container[outliner].collapsed = false; // Auto expand root level
+  /**
+   * 在每一帧中检测场景,将场景序列化
+   * @param {Scene} scene 场景
+   */
+  detectScene(scene) {
+    if (this.root.children.indexOf(scene) === -1) {
+      this.root.children.push(scene);
+      //自动展开场景的子节点
+      this.root[outliner].collapsed = false;
       this.inspector.emit("TREE", this.serialize(this.root));
       if (!window.$three) {
-        window.$three = container; // autoselect if nothing is selected
-        this.inspector.emit("SELECTED", this.serialize(container));
+        window.$three = scene; // autoselect if nothing is selected
+        this.inspector.emit("SELECTED", this.serialize(scene));
       }
     }
   }
@@ -176,13 +179,22 @@ export default class InspectorOutliner {
     }
     return false;
   }
-
+  /**
+   * 序列化节点
+   * @param {node} node Three.js中的物体
+   */
   serialize(node) {
     if (typeof node[outliner] === "undefined") {
+      const type = this.inspector.typeDetection.detectType(node);
+      if (type === "") {
+        return;
+      }
       node[outliner] = {
         id: -1,
         name: node.name,
-        type: this.inspector.typeDetection.detectType(node),
+        type,
+        //如果节点有父元素，且节点的父元素有outliner属性，且节点父元素的父元素不为null
+        //如果节点父元素的父元素为null,证明该节点为root的直接子节点，因此不需要折叠
         collapsed:
           node.parent && node.parent[outliner]
             ? node.parent[outliner].parent !== null
@@ -199,19 +211,21 @@ export default class InspectorOutliner {
 
     if (Array.isArray(node.children)) {
       if (node.children.length === 0) {
-        node[outliner].children = false;
-      } else if (
-        node[outliner].collapsed === false ||
-        !node[outliner].parent.found
-      ) {
-        node[outliner].children = node.children.map(childNode =>
-          this.serialize(childNode)
-        );
+        node[outliner].children = null;
+      } else if (node[outliner].collapsed === false || !node[outliner].found) {
+        const children = [];
+        node.children.forEach(child => {
+          const childNode = this.serialize(child);
+          if (childNode !== void 0) {
+            children.push(childNode);
+          }
+        });
+        node[outliner].children = children;
       } else {
-        node[outliner].children = true;
+        node[outliner].children = null;
       }
     } else {
-      node[outliner].children = false;
+      node[outliner].children = null;
     }
     return node[outliner];
   }

@@ -7,23 +7,24 @@ import Highlight from "./InspectorHighlight";
 import runHooks from "./runHooks";
 
 export default class Inspector {
+  /**
+   * 构造函数
+   * @param {renderer实例} instance
+   * @param {通信方法} emit
+   */
   constructor(instance, emit) {
-    //three实例
+    //Renderer实例
     this.instance = instance;
-    //通信方法
     this.emit = emit;
-    this.unpatched = {};
+    this.patched = null;
     this.hooks = {
       beforeRender: [],
       afterRender: []
     };
     this.enabled$ = new ReplaySubject(1);
-
     // Register types
     this.typeDetection = new TypeDetection();
-    this.typeDetection.registerTypes("THREE.", instance.THREE, 2);
-    window.console = console;
-
+    this.typeDetection.registerTypes(instance.THREE);
     // Register "plugins"
     this.gui = new Gui(this);
     this.outliner = new Outliner(this);
@@ -32,34 +33,31 @@ export default class Inspector {
   }
 
   enable() {
-    if (!this.unpatched.TargetRender) {
-      this.patch("TargetRender");
-    }
+    this.patch();
     this.enabled$.next(true);
   }
 
   disable() {
-    for (const [renderer, renderMethod] of Object.entries(this.unpatched)) {
-      this.instance.THREE[renderer].render = renderMethod;
+    if (!this.patched) {
+      return;
     }
-    this.unpatched = {};
+    this.instance.render = this.patched;
+    this.patched = null;
     this.enabled$.next(false);
   }
 
   /**
    * Path the Renderer.render method to get a hold of the stage object(s)
    */
-  patch(target) {
-    if (this.unpatched[target]) {
-      /* eslint-disable no-console */
-      console.warn(target + " already patched");
-      /* eslint-enable */
-      return;
+  patch() {
+    if (this.patched) {
+      this.instance.render = this.patched;
+      this.patched = null;
     }
-    const Renderer = this.instance.THREE[target];
-    if (Renderer && Renderer.render) {
+    const Renderer = this.instance;
+    if (Renderer.render) {
       const renderMethod = Renderer.render;
-      this.unpatched[target] = renderMethod;
+      this.patched = renderMethod;
       const self = this;
       Renderer.render = function(container, camera, ...args) {
         runHooks(self.hooks.beforeRender, container, camera, this);

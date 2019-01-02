@@ -146,12 +146,8 @@ export default class InspectorGui {
 
     this.subscription = inspector.enabled$
       .pipe(
-        tap(enabled => {
-          if (enabled) {
-            overlay.div.removeAttribute("style");
-          } else {
-            overlay.div.removeAttribute("style");
-          }
+        tap(() => {
+          overlay.div.removeAttribute("style");
         }),
         switchMap(enabled => {
           if (enabled === false) {
@@ -211,9 +207,7 @@ export default class InspectorGui {
     canvas.width = width;
     canvas.height = height;
     overlay.div.appendChild(canvas);
-    //create three scene
     overlay.scene = new overlay.THREE.Scene();
-    //create three render
     const renderOptions = {
       canvas,
       pixelRatio: window.devicePixelRatio,

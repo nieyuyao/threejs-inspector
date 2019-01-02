@@ -21,7 +21,7 @@ debug && console.info("three.devtools");
 /* eslint-enable */
 const connection = new Connection("devtools_page");
 
-// If all pixi instances are already detected, no DETECTED events will fire, but INSTANCES will return an array.
+//监听DETECTED消息，如果监听到的话，返回INSTANCES消息
 const threeDetected$ = connection.on("DETECTED").pipe(
   merge(
     connection
@@ -38,7 +38,7 @@ const panel$ = threeDetected$.pipe(
 );
 panel$.subscribe();
 
-// When devtools is opened, start detection again, maybe PIXI wasn't yet ready before.
+//如果devtools打开了，开始检测，可能THREE还没有准备好，此时再次发送DETECT消息
 connection.to("content_scripts").send("DETECT");
 
 // Stream the visibility to the three_panel

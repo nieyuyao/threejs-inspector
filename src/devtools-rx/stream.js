@@ -5,10 +5,10 @@ let autoIncrement = 1;
 
 export default function stream(client, command, data) {
   return defer(() => {
+    //消息计数
     const id = autoIncrement;
     autoIncrement++;
     client.send(command, data, { id });
-
     return client.connection.message$.pipe(
       filter(message => message.id === id),
       tap(message => {
