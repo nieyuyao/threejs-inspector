@@ -54,7 +54,7 @@ const globalHook = {
       function() {
         __THREE_INSPECTOR_GLOBAL_HOOK__.reportFrontStage();
       }.toString()
-    )
+    );
   },
   disable() {
     this.executeInContext(
@@ -184,7 +184,8 @@ const globalHook = {
         if (!threeInstance) {
           respond("ERROR", "THREE_INSTANCE_NOT_EXIT", recipient);
         }
-        const rendererInstance = threeInstance.THREE.$$RendererList[rendererIndex];
+        const rendererInstance =
+          threeInstance.THREE.$$RendererList[rendererIndex];
         if (!rendererInstance) {
           respond("ERROR", "THREE_RENDERER_NOT_EXIT", recipient);
         }

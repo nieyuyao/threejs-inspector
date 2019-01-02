@@ -14,7 +14,7 @@
 					<label>status</label>
 					{{renderer.status}}
 				</div>
-        <input type="radio" :id="'radio-' + k" @change="change(three.id + '.' + k, renderer)" hidden>
+        <input type="radio" :id="'radio-' + k" @change="change(`${three.id}.${k}`, renderer)" :checked="isChecked(`${three.id}.${k}`)" hidden>
         <label :for="'radio-' + k" class="radio-label"></label>
 				<span class="renderer-name">{{'Renderer [' + renderer.name + ']'}}</span>
       </div>
@@ -24,14 +24,23 @@
 <script>
 import { tap, map } from "rxjs/operators";
 import { renderer$ } from "../services/latestInspector$";
-import getPlatForm from "../utils.js"
+import getPlatForm from "../utils.js";
+let inspecting = "";
 export default {
-  name: "Threes",
+	name: "Threes",
   subscriptions() {
     return {
       threes: renderer$.pipe(
-      	map(frame => frame.data)
-			),
+      	map(frame => frame.data),
+				tap(data => {
+					if (inspecting) {
+						const indexs = inspecting.split(".");
+						const threeIndex = indexs[0] || 0;
+						const rendererIndex = indexs[1] || 0;
+						data[threeIndex] ? data[threeIndex].rendererList[rendererIndex].status = "INJECTED..." : void 0;
+					}
+				}),
+			)
     };
 	},
 	computed: {
@@ -42,7 +51,14 @@ export default {
 	methods: {
 		change(query, renderer) {
 			renderer$.select(query);
+			inspecting = query;
 			renderer.status = "INJECTED...";
+		},
+		isChecked(query) {
+			if (query === inspecting) {
+				return true;
+			}
+			return false;
 		}
 	}
 };

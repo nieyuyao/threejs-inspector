@@ -30,8 +30,8 @@ renderer$.select = function(query) {
   let queryArray = query.split(".");
   queryArray = queryArray.slice(0, 2);
   const queryObject = {};
-  queryObject.threeIndex = Number(queryArray[0]);
-  queryObject.rendererIndex = Number(queryArray[1]);
+  queryObject.threeIndex = Number(queryArray[0] || 0);
+  queryObject.rendererIndex = Number(queryArray[1] || 0);
   relaySubject.next(queryObject);
 };
 

@@ -61,7 +61,7 @@ export default {
 
 .detailview-label {
   display: inline-block;
-  color: #5ba47a;
+  color: #56aa7a;
   padding-right: 5px;
   &:after {
     content: ":";
