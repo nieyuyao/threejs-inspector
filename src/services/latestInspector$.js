@@ -34,6 +34,7 @@ renderer$.select = function(query) {
   queryObject.rendererIndex = Number(queryArray[1]);
   relaySubject.next(queryObject);
 };
+
 /**
  * Create a AsyncInspector for the detected instance
  */
@@ -51,9 +52,9 @@ const latestInspector$ = relaySubject.pipe(
         rendererIndex: instance.rendererIndex
       })
       .pipe(
-        switchMap(index =>
+        switchMap(sign =>
           Observable.create(observer => {
-            const inspector = new AsyncInspector(index, {
+            const inspector = new AsyncInspector(sign, {
               frameURL: instance.frameURL
             });
             observer.next(inspector);

@@ -4,17 +4,17 @@
     <div class="three-item" v-for="three in threes" :key="three.id">
       <div class="three-detail">
         <span>THREE Instance</span>
-				<div>
+				<div class="version">
 					<label>version</label>
 					{{three.version}}
 				</div>
       </div>
       <div class="renderer-item" v-for="(renderer, k) in three.rendererList" :key="k">
-				<div>
+				<div class="status">
 					<label>status</label>
 					{{renderer.status}}
 				</div>
-        <input type="radio" :id="'radio-' + k" @change="change(three.id + '.' + k)" hidden>
+        <input type="radio" :id="'radio-' + k" @change="change(three.id + '.' + k, renderer)" hidden>
         <label :for="'radio-' + k" class="radio-label"></label>
 				<span class="renderer-name">{{'Renderer [' + renderer.name + ']'}}</span>
       </div>
@@ -40,14 +40,15 @@ export default {
 		}
 	},
 	methods: {
-		change(query) {
+		change(query, renderer) {
 			renderer$.select(query);
+			renderer.status = "INJECTED...";
 		}
 	}
 };
 </script>
 <style lang="scss" scoped>
-$color: #5ba47a;
+$color: #56aa7a;
 %common {
 	padding: 2px;
 	background-color: $color;
@@ -89,12 +90,18 @@ $color: #5ba47a;
 				background-color: #dadada;
 			}
 		}
-		
 	}
 	.renderer-item {
 		margin: 10px 0;
 		> div {
 			margin: 6px 0;
+		}
+		.status > label {
+			height: 12px;
+			padding: 0px 4px;
+			border-radius: 4px;
+			color: #fff;
+			background-color: #dadada;
 		}
 		.radio-label {
 			display: inline-block;
