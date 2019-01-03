@@ -132,9 +132,10 @@ export default class InspectorOutliner {
    * 在每一帧中检测场景,将场景序列化
    * @param {Scene} scene 场景
    */
-  detectScene(scene) {
+  detectScene(scene, camera) {
     if (this.root.children.indexOf(scene) === -1) {
       this.root.children.push(scene);
+      this.root.children.push(camera);
       //自动展开场景的子节点
       this.root[outliner].collapsed = false;
       this.inspector.emit("TREE", this.serialize(this.root));

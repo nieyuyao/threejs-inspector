@@ -16,7 +16,10 @@
 				</div>
         <input type="radio" :id="'radio-' + k" @change="change(`${three.id}.${k}`, renderer)" :checked="isChecked(`${three.id}.${k}`)" hidden>
         <label :for="'radio-' + k" class="radio-label"></label>
-				<span class="renderer-name">{{'Renderer [' + renderer.name + ']'}}</span>
+				<span class="renderer-name">
+					Renderer
+					<strong>{{'[' + renderer.name + ']'}}</strong>
+				</span>
       </div>
     </div>
   </div>

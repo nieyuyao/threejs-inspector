@@ -158,24 +158,24 @@ export default {
 }
 
 .treeview-toggle-expand {
-  border: 4px solid transparent;
-  border-left-color: #6e6e6e;
-  border-left-width: 6px;
   position: absolute;
   top: 2px;
   left: 4px;
+  border: 4px solid transparent;
+  border-left-color: #6e6e6e;
+  border-left-width: 6px;
   .dark-mode & {
     border-left-color: #bdc6cf;
   }
 }
 
 .treeview-toggle-collapse {
-  border: 4px solid transparent;
-  border-top-color: #6e6e6e;
-  border-top-width: 6px;
   position: absolute;
   top: 3px;
   left: 2px;
+  border: 4px solid transparent;
+  border-top-color: #6e6e6e;
+  border-top-width: 6px;
   .dark-mode & {
     border-top-color: #bdc6cf;
   }

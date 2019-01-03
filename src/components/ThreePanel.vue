@@ -126,7 +126,7 @@ export default {
     border: 1px solid #fff;
     padding: 2px 3px 1px 3px;
     border-radius: 2px;
-    font: 12px sans-serif;
+    font: 12px;
     &:focus {
       outline: none;
     }

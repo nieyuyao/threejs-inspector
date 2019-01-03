@@ -2,25 +2,30 @@
   <span>
     <span 
       v-if="field.type === 'number' || field.type === 'string'" 
-      class="detailvalue__input" 
+      class="detailvalue-input" 
       contenteditable="true" 
       @focus="onFocus"
       @blur="onBlur"
       @keydown="keydown"
-      v-html="fieldValue"/>
-    <label 
-      v-if="field.type === 'boolean'"
-      class="detailvalue__label">
+      v-html="fieldValue">
+    </span>
+    <label
+      v-else-if="field.type === 'boolean'"
+      class="detailvalue-label">
       <input 
         v-model="field.value" 
         type="checkbox" 
-        @change="toggle()">{{ field.value }}</label>
-    <span>{{ type() }}</span>
+        @change="toggle()"
+      >
+      {{ field.value }}
+    </label>
+    <span v-else>{{ field.value }}</span>
   </span>
 </template>
 
 <script>
 export default {
+  name: "DetailValue",
   props: {
     field: { type: Object, required: true }
   },
@@ -50,16 +55,6 @@ export default {
       if (oldValue !== this.fieldValue) {
         this.sentNewValue(this.fieldValue);
       }
-    },
-    type() {
-      const type = this.field.type;
-      if (type === "object" && this.field.value === null) {
-        return "null";
-      }
-      if (type === "boolean" || type === "number" || type === "string") {
-        return "";
-      }
-      return type;
     },
     toggle() {
       this.sentNewValue(this.field.value);
@@ -129,16 +124,16 @@ export default {
 </script>
 
 <style lang="scss">
-.detailvalue__input {
+.detailvalue-input {
   border: none;
   min-width: 50px;
   display: block;
 }
-.detailvalue__label {
+.detailvalue-label {
   position: relative;
   padding-left: 12px;
 }
-.detailvalue__label input {
+.detailvalue-label input {
   position: absolute;
   top: -2px;
   left: -6px;
