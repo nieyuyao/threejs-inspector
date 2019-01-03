@@ -19,7 +19,7 @@
       >
       {{ field.value }}
     </label>
-    <span v-else>{{ field.value }}</span>
+    <span v-else :style="{'font-style': field.type === 'function' ? 'italic' : 'normal'}">{{ field.value }}</span>
   </span>
 </template>
 

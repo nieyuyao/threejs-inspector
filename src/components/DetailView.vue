@@ -4,10 +4,10 @@
       v-for="field in fields" 
       :key="field.path"
       class="detailview-item">
-      <div class="detailview-label">
+      <div class="detailview-label" @click="toggleDetailView(field)">
         <span class="detailview-indent" :style="{width: field.indent * 6 + 'px'}"></span>
         <span class="detailview-toggle">
-          <span :class="['toggle-collapse', !field.collapsed ? 'toggle-expand': '']" v-if="field.expandable"></span>
+          <span :class="['toggle-collapse', !field.collapsed ? 'toggle-expand': '']" v-if="field.children"></span>
         </span>
         <span>{{ field.name }}</span>
       </div>
@@ -42,6 +42,7 @@ export default {
         })
       ),
       setProperty: latestInspector$.method("setProperty"),
+      toggleDetailView: latestInspector$.method("toggleDetailView"),
       platformClass: "platform-" + getPlatForm()
     };
   }
@@ -85,15 +86,15 @@ export default {
     top: 0px;
     left: 0px;
     border: 4px solid transparent;
-    border-left-color: #6e6e6e;
     border-left-width: 6px;
-    transform: rotate3d(0, 0, 1, 0);
-    transition: transform 0.4s ease 0s;
+    border-left-color: #6e6e6e;
     .dark-mode & {
       border-left-color: #bdc6cf;
     }
     &.toggle-expand {
-      transform: rotate3d(0, 0, 1, -90deg);
+      border: 4px solid transparent;
+      border-top-width: 6px;
+      border-top-color: #6e6e6e;
     }
   }
   &:after {

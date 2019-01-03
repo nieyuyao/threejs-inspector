@@ -1,9 +1,6 @@
 export const blacklist = ["children", "parent"];
-
+const $collapse = Symbol("collapsed");
 export default class InspectorProperties {
-  constructor() {
-  }
-
   all() {
     if (!window.$three) {
       return [];
@@ -14,7 +11,7 @@ export default class InspectorProperties {
         continue;
       }
       properties.push(
-        ...this.serialize(window.$three[property], [property], property)
+        ...this.serialize(window.$three[property], [property], property, 1)
       );
     }
     return properties;
@@ -23,95 +20,101 @@ export default class InspectorProperties {
   set(path, value) {
     eval("$three." + path + " = " + JSON.stringify(value));
   }
-  /* eslint-enable */
-  serialize(value, path, name) {
+  toggleDetailView(path) {
+    if (window.$three) {
+      const node = this.recurPath(window.$three, path.split("."));
+      node[$collapse] = !node[$collapse];
+    }
+  }
+  /**
+   * 根据path递归节点的属性
+   * @param {节点} node
+   * @param {属性路径} path
+   */
+  recurPath(node, pathes) {
+    if (pathes.length === 1) {
+      return node[pathes[0]];
+    }
+    const path = pathes.shift();
+    node = node[path];
+    return this.recurPath(node, pathes);
+  }
+  serialize(value, path, name, indent) {
     const type = typeof value;
-    const property = [];
+    const properties = [];
+    const property = {
+      path: path.join("."),
+      type,
+      name,
+      indent,
+      children: false
+    };
     switch (type) {
       case "undefined": {
-        property.push({
-          path: path.join("."),
-          type,
-          name,
-          value: "undefined",
-          collapsed: false,
-          indent: 1
-        });
+        property.value = "undefined";
+        property.collapsed = false;
         break;
       }
       case "symbol": {
-        property.push({
-          path: path.join("."),
-          type,
-          name,
-          value,
-          expandable: false,
-          collapsed: false,
-          indent: 1
-        });
+        property.value = value;
+        property.collapsed = false;
         break;
       }
       case "function": {
-        property.push({
-          path: path.join("."),
-          name,
-          type,
-          value: "function",
-          expandable: false,
-          collapsed: false,
-          indent: 1
-        });
+        property.value = "function";
+        property.collapsed = false;
         break;
       }
       case "string":
       case "number":
       case "boolean": {
-        property.push({
-          path: path.join("."),
-          type,
-          name,
-          value: value === "" ? "\"\"" : value,
-          expandable: false,
-          collapsed: false,
-          indent: 1
-        });
+        property.value = (value === "" ? "\"\"" : value);
+        property.collapsed = false;
         break;
       }
       case "object": {
         if (value === null) {
-          property.push({
-            path: path.join("."),
-            type,
-            name,
-            value,
-            expandable: false,
-            collapsed: false,
-            indent: 1
-          });
+          property.value = value;
+          property.collapsed = false;
         } else if (Array.isArray(value)) {
-          property.push({
-            path: path.join("."),
-            type,
-            name,
-            value: `Array[${value.length}]`,
-            expandable: true,
-            collapsed: true,
-            indent: 1
-          });
+          property.value = `Array[${value.length}]`;
+          property.collapsed = true;
+          property.children = true;
+          //如果需要展开数组
+          if (value[$collapse] === false) {
+            property.collapsed = false;
+            properties.push(property);
+            for (const property in value) {
+              properties.push(
+                ...this.serialize(value[property], [...path, property], property, indent + 1)
+              );
+            }
+            break;
+          }
+          property[$collapse] = true;
         } else {
-          property.push({
-            path: path.join("."),
-            type,
-            name,
-            value: "Object",
-            expandable: true,
-            collapsed: true,
-            indent: 1
-          });
+          property.value = "Object";
+          property.collapsed = true;
+          property.children = true;
+          //如果需要展开对象
+          if (value[$collapse] === false) {
+            property.collapsed = false;
+            properties.push(property);
+            for (const property in value) {
+              properties.push(
+                ...this.serialize(value[property], [...path, property], property, indent + 1)
+              );
+            }
+            break;
+          }
+          property[$collapse] = true;
         }
         break;
       }
     }
-    return property;
+    if (properties.length === 0) {
+      properties.push(property);
+    }
+    return properties;
   }
 }
