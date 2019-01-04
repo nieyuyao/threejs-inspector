@@ -80,6 +80,8 @@
   },
   "dependencies": {
     "rxjs": "^6.3.3",
+    "stats.js": "^0.17.0",
+    "three-orbitcontrols": "^2.99.1",
     "vue": "^2.5.13",
     "vue-rx": "^6.0.1"
   }

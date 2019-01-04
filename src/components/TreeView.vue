@@ -1,36 +1,44 @@
 <template>
-  <div 
-    class="treeview"
-    :class="platformClass" 
-    tabindex="1" 
-    @keydown.right.prevent="navigateRight" 
-    @keydown.left.prevent="navigateLeft" 
-    @keydown.up.prevent="navigateUp" 
-    @keydown.down.prevent="navigateDown">
+  <div>
     <div 
-      v-for="row in rows" 
-      :key="row.node.id" 
-      :data-id="row.node.id" 
-      :class="{'treeview-item-selected': selected && row.node.id === selected.id, 'treeview-item-found': row.node.found}" 
-      class="treeview-item" 
-      @mousedown="select(row.node)" 
-      @mouseenter="highlight(row.node)"
-      @dblclick="toggle(row.node)" 
-      @mouseleave="highlight(false)">
+      class="treeview"
+      :class="platformClass" 
+      tabindex="1" 
+      @keydown.right.prevent="navigateRight" 
+      @keydown.left.prevent="navigateLeft" 
+      @keydown.up.prevent="navigateUp" 
+      @keydown.down.prevent="navigateDown">
       <div 
-        :style="{width: (row.indent * 14) + 'px'}"
-        class="treeview-indent" />
-      <div class="treeview-toggle">
+        v-for="row in rows" 
+        :key="row.node.id" 
+        :data-id="row.node.id" 
+        :class="{'treeview-item-selected': selected && row.node.id === selected.id, 'treeview-item-found': row.node.found}" 
+        class="treeview-item" 
+        @mousedown="select(row.node)" 
+        @mouseenter="highlight(row.node)"
+        @dblclick="toggle(row.node)" 
+        @mouseleave="highlight(false)">
         <div 
-          v-if="row.node.children && row.node.collapsed" 
-          class="treeview-toggle-expand"
-          @click="expand(row.node)"/>
-        <div 
-          v-if="row.node.children && !row.node.collapsed" 
-          class="treeview-toggle-collapse" 
-          @click="collapse(row.node)"/>
+          :style="{width: (row.indent * 14) + 'px'}"
+          class="treeview-indent" />
+        <div class="treeview-toggle">
+          <div 
+            v-if="row.node.children && row.node.collapsed" 
+            class="treeview-toggle-expand"
+            @click="expand(row.node)"/>
+          <div 
+            v-if="row.node.children && !row.node.collapsed" 
+            class="treeview-toggle-collapse" 
+            @click="collapse(row.node)"/>
+        </div>
+        <div class="treeview-label" >{{ row.title }}</div>
       </div>
-      <div class="treeview-label" >{{ row.title }}</div>
+    </div>
+    <!-- 辅助功能 -->
+    <div class="aider">
+    <!-- 1. 轨道控制 -->
+    
+    <!-- 2. 帧率显示 -->
     </div>
   </div>
 </template>

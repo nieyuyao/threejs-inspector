@@ -86,15 +86,18 @@ export default {
     top: 0px;
     left: 0px;
     border: 4px solid transparent;
-    border-left-width: 6px;
     border-left-color: #6e6e6e;
+    transform: rotate(0);
+    transform-origin: 50%, 16.6%;
+    transition: transform 0.2s ease 0s;
     .dark-mode & {
       border-left-color: #bdc6cf;
     }
     &.toggle-expand {
-      border: 4px solid transparent;
-      border-top-width: 6px;
-      border-top-color: #6e6e6e;
+      transform: rotate(90deg);
+      // border: 4px solid transparent;
+      // border-top-width: 6px;
+      // border-top-color: #6e6e6e;
     }
   }
   &:after {
