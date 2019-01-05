@@ -91,6 +91,10 @@ export default class AsyncInspector {
     }
     return this.call("properties.toggleDetailView", field.path);
   }
+  //辅助功能
+  aider(...args) {
+    return this.call("gui.aider", args[0], args[1]);
+  }
   highlight(node) {
     return this.call("outliner.highlight", node.id);
   }

@@ -63,7 +63,13 @@ const globalHook = {
       }.toString()
     );
   },
-
+  // registerStats() {
+  //   this.executeInContext(
+  //     function() {
+  //       __THREE_INSPECTOR_GLOBAL_HOOK__.registerStats();
+  //     }.toString()
+  //   );
+  // },
   /**
    * Execute the javascript inside the context of the page.
    * @param {String} code
@@ -282,6 +288,12 @@ port.onMessage.addListener(message => {
     case "DISCONNECTED":
       globalHook.disable();
       break;
+    // case "STATS_OPEN":
+    //   globalHook.registerStats();
+    //   break;
+    // case "STATS_CLOSE":
+    //   globalHook.abortStats();
+    //   break;
   }
 });
 

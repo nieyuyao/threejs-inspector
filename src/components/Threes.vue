@@ -140,7 +140,7 @@ $color: #56aa7a;
 			vertical-align: middle;
 		}
 	}
-	input[type="radio"]:checked+.radio-label {
+	input[type="radio"]:checked + .radio-label {
 		@extend %common;
 	}
 }

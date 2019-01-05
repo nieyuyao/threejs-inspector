@@ -15,3 +15,14 @@ export default function getPlatForm() {
   }
   return "";
 }
+export function parentElements(element) {
+  if (element === null) {
+    return [];
+  }
+  const elements = [];
+  while (element.parentElement) {
+    elements.push(element.parentElement);
+    element = element.parentElement;
+  }
+  return elements;
+}

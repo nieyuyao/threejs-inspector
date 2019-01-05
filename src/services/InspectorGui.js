@@ -9,7 +9,8 @@ import {
   debounceTime,
   combineLatest
 } from "rxjs/operators";
-
+import { parentElements } from "../utils";
+import Stats from "stats.js";
 export const overlay = {
   div: null,
   renderer: null,
@@ -18,9 +19,13 @@ export const overlay = {
   camera: null,
   container: null
 };
-
 export default class InspectorGui {
   constructor(inspector) {
+    this.stats = null;
+    this.statsPanel = 0;
+    this.statsRemoveCallbackBefore = null;
+    this.statsRemoveCallbackAfter = null;
+    this.inspector = inspector;
     //初始化调试需要的three场景
     if (!overlay.THREE) {
       this.initOverlay(inspector);
@@ -277,16 +282,54 @@ export default class InspectorGui {
     camera.bottom = -window.innerHeight / 2;
     camera.updateProjectionMatrix();
   }
-}
-
-function parentElements(element) {
-  if (element === null) {
-    return [];
+  aider(name, status) {
+    const _name = `${name}_${status}`;
+    switch (_name) {
+      case "StatsSwitch_true":
+        this.openStats();
+        break;
+      case "StatsSwitch_false":
+        this.closeStats();
+        break;
+    }
   }
-  const elements = [];
-  while (element.parentElement) {
-    elements.push(element.parentElement);
-    element = element.parentElement;
+  //开启帧率显示
+  openStats() {
+    const { statsPanel } = this;
+    if (!this.stats) {
+      this.stats = new Stats();
+      this.stats.dom.style.position = "absolute";
+      this.stats.dom.style.top = "0px";
+      this.stats.dom.style.left = "0px";
+      this.stats.showPanel(statsPanel);
+      overlay.div.appendChild(this.stats.dom);
+    }
+    this.stats.dom.style.display = "block";
+    this.statsRemoveCallbackBefore = this.inspector.registerHook(
+      "beforeRender",
+      () => {
+        this.stats.begin();
+      }
+    );
+    this.statsRemoveCallbackAfter = this.inspector.registerHook(
+      "afterRender",
+      () => {
+        this.stats.end();
+      }
+    );
   }
-  return elements;
+  //关闭帧率显示
+  closeStats() {
+    if (this.stats) {
+      this.stats.dom.style.display = "none";
+      if (this.statsRemoveCallbackBefore) {
+        this.statsRemoveCallbackBefore();
+        this.statsRemoveCallbackBefore = null;
+      }
+      if (this.statsRemoveCallbackAfter) {
+        this.statsRemoveCallbackAfter();
+        this.statsRemoveCallbackAfter = null;
+      }
+    }
+  }
 }

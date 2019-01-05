@@ -35,10 +35,11 @@
       </div>
     </div>
     <!-- 辅助功能 -->
-    <div class="aider">
-    <!-- 1. 轨道控制 -->
-    
     <!-- 2. 帧率显示 -->
+    <div class="divide"></div>
+    <div class="aider">
+      <!-- 1. 轨道控制 -->
+      <StatsSwitch class="stats-switch" @aider="aider"></StatsSwitch>
     </div>
   </div>
 </template>
@@ -46,8 +47,13 @@
 <script>
 import { filter, map, switchMap } from "rxjs/operators";
 import latestInspector$ from "../services/latestInspector$";
+import StatsSwitch from "./StatsSwitch.vue";
 import getPlatForm from "../utils.js"
 export default {
+  name: "TreeView",
+  components: {
+    StatsSwitch
+  },
   subscriptions() {
     const inspector$ = latestInspector$.pipe(
       filter(inspector => inspector !== null)
@@ -63,6 +69,7 @@ export default {
       toggle: latestInspector$.method("toggle"),
       collapse: latestInspector$.method("collapse"),
       highlight: latestInspector$.method("highlight"),
+      aider: latestInspector$.method("aider"),
       platformClass: "platform-" + getPlatForm()
     };
   },
@@ -136,7 +143,6 @@ export default {
   }
 };
 </script>
-
 <style lang="scss">
 .treeview {
   padding: 4px 0;
@@ -147,7 +153,6 @@ export default {
 		font-family: Consolas, "Lucida Console", "Courier New", monospace;
 	}
 }
-
 .treeview-item {
   position: relative;
   color: #56aa7a;
@@ -158,13 +163,11 @@ export default {
     color: #5db0d7;
   }
 }
-
 .treeview-toggle {
   position: relative;
   width: 12px;
   height: 12px;
 }
-
 .treeview-toggle-expand {
   position: absolute;
   top: 2px;
@@ -176,7 +179,6 @@ export default {
     border-left-color: #bdc6cf;
   }
 }
-
 .treeview-toggle-collapse {
   position: absolute;
   top: 3px;
@@ -188,7 +190,6 @@ export default {
     border-top-color: #bdc6cf;
   }
 }
-
 .treeview-item--hovered,
 .treeview-item:hover:not(.treeview-item-selected) {
   &:before {
@@ -206,14 +207,12 @@ export default {
     }
   }
 }
-
 .treeview-item-selected {
   background: #d4d4d4;
   .dark-mode.dark-mode & {
     background: #342e25;
   }
 }
-
 .treeview-item-found {
   &:after {
     content: "";
@@ -226,7 +225,6 @@ export default {
     background: #ffff0070;
   }
 }
-
 .treeview:focus {
   outline: none;
 
@@ -251,5 +249,8 @@ export default {
       }
     }
   }
+}
+.stats-switch {
+  margin: 1px 0 1px 14px;
 }
 </style>
