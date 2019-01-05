@@ -9,7 +9,7 @@ import {
   debounceTime,
   combineLatest
 } from "rxjs/operators";
-import { parentElements } from "../utils";
+import { parentElements, hideDom, showDom } from "../utils";
 import Stats from "stats.js";
 export const overlay = {
   div: null,
@@ -21,10 +21,17 @@ export const overlay = {
 };
 export default class InspectorGui {
   constructor(inspector) {
-    this.stats = null;
-    this.statsPanel = 0;
-    this.statsRemoveCallbackBefore = null;
-    this.statsRemoveCallbackAfter = null;
+    this.stats = {
+      ele: null,
+      panel: 0,
+      removeCallbackBefore: null,
+      removeCallbackAfter: null
+    };
+    this.orbitControl = {
+      ele: null,
+      removeCallbackBefore: null,
+      removeCallbackAfter: null
+    };
     this.inspector = inspector;
     //初始化调试需要的three场景
     if (!overlay.THREE) {
@@ -282,10 +289,17 @@ export default class InspectorGui {
     camera.bottom = -window.innerHeight / 2;
     camera.updateProjectionMatrix();
   }
-  aider(name, status) {
+  /**
+   * 辅助功能
+   * @param {Stirng} name 辅助功能的名称
+   * @param {Boolean} status 是否开启
+   * @param {Number} index 功能模式索引
+   */
+  aider(name, status = false, index = 0) {
     const _name = `${name}_${status}`;
     switch (_name) {
       case "StatsSwitch_true":
+        this.setStatsPanel(index);
         this.openStats();
         break;
       case "StatsSwitch_false":
@@ -295,41 +309,45 @@ export default class InspectorGui {
   }
   //开启帧率显示
   openStats() {
-    const { statsPanel } = this;
-    if (!this.stats) {
-      this.stats = new Stats();
-      this.stats.dom.style.position = "absolute";
-      this.stats.dom.style.top = "0px";
-      this.stats.dom.style.left = "0px";
-      this.stats.showPanel(statsPanel);
-      overlay.div.appendChild(this.stats.dom);
+    const { stats, inspector } = this;
+    if (!stats.ele) {
+      stats.ele = new Stats();
+      const { ele } = stats;
+      ele.dom.style.position = "absolute";
+      ele.dom.style.top = "0px";
+      ele.dom.style.left = "0px";
+      overlay.div.appendChild(ele.dom);
     }
-    this.stats.dom.style.display = "block";
-    this.statsRemoveCallbackBefore = this.inspector.registerHook(
-      "beforeRender",
-      () => {
-        this.stats.begin();
-      }
-    );
-    this.statsRemoveCallbackAfter = this.inspector.registerHook(
-      "afterRender",
-      () => {
-        this.stats.end();
-      }
-    );
+    stats.ele.showPanel(stats.panel);
+    showDom(stats.ele.dom);
+    if (stats.removeCallbackAfter) {
+      return;
+    }
+    stats.removeCallbackBefore = inspector.registerHook("beforeRender", () => {
+      stats.ele.begin();
+    });
+    stats.removeCallbackAfter = inspector.registerHook("afterRender", () => {
+      stats.ele.end();
+    });
   }
   //关闭帧率显示
   closeStats() {
-    if (this.stats) {
-      this.stats.dom.style.display = "none";
-      if (this.statsRemoveCallbackBefore) {
-        this.statsRemoveCallbackBefore();
-        this.statsRemoveCallbackBefore = null;
+    const { stats } = this;
+    if (stats.ele) {
+      const { ele } = stats;
+      hideDom(ele.dom);
+      if (stats.removeCallbackBefore) {
+        stats.removeCallbackBefore();
+        stats.removeCallbackBefore = null;
       }
-      if (this.statsRemoveCallbackAfter) {
-        this.statsRemoveCallbackAfter();
-        this.statsRemoveCallbackAfter = null;
+      if (stats.removeCallbackAfter) {
+        stats.removeCallbackAfter();
+        stats.removeCallbackAfter = null;
       }
     }
+  }
+  //设置开启帧率的那个显示模式
+  setStatsPanel(index) {
+    this.stats.panel = index;
   }
 }

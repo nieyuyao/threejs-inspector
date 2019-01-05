@@ -35,11 +35,11 @@
       </div>
     </div>
     <!-- 辅助功能 -->
-    <!-- 2. 帧率显示 -->
     <div class="divide"></div>
     <div class="aider">
-      <!-- 1. 轨道控制 -->
-      <StatsSwitch class="stats-switch" @aider="aider"></StatsSwitch>
+      <!-- 1. 帧率显示 -->
+      <StatsSwitch class="stats-switch-aider" @aider="aider"></StatsSwitch>
+      <!-- 2. 轨道控制 -->
     </div>
   </div>
 </template>
@@ -250,7 +250,7 @@ export default {
     }
   }
 }
-.stats-switch {
-  margin: 1px 0 1px 14px;
+.stats-switch-aider {
+  margin: 6px 0 6px 6px;
 }
 </style>

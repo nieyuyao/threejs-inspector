@@ -26,3 +26,9 @@ export function parentElements(element) {
   }
   return elements;
 }
+export function hideDom(dom) {
+  dom.style.display = "none";
+}
+export function showDom(dom, display = "block") {
+  dom.style.display = display;
+}

@@ -93,7 +93,7 @@ export default class AsyncInspector {
   }
   //辅助功能
   aider(...args) {
-    return this.call("gui.aider", args[0], args[1]);
+    return this.call("gui.aider", args[0], args[1], args[2]);
   }
   highlight(node) {
     return this.call("outliner.highlight", node.id);

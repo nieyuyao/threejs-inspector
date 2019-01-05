@@ -10,16 +10,18 @@
 				</div>
       </div>
       <div class="renderer-item" v-for="(renderer, k) in three.rendererList" :key="k">
-				<div class="status">
+				<div class="renderer">
+					<input type="radio" :id="'radio-' + k" @change="change(`${three.id}.${k}`, renderer)" :checked="isChecked(`${three.id}.${k}`)" hidden>
+					<label :for="'radio-' + k" class="radio-label"></label>
+					<span class="renderer-name">
+						Renderer
+						<strong>{{'[' + renderer.name + ']'}}</strong>
+					</span>
+				</div>
+				<div class="renderer-status">
 					<label>status</label>
 					{{renderer.status}}
 				</div>
-        <input type="radio" :id="'radio-' + k" @change="change(`${three.id}.${k}`, renderer)" :checked="isChecked(`${three.id}.${k}`)" hidden>
-        <label :for="'radio-' + k" class="radio-label"></label>
-				<span class="renderer-name">
-					Renderer
-					<strong>{{'[' + renderer.name + ']'}}</strong>
-				</span>
       </div>
     </div>
   </div>
@@ -67,6 +69,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+@import "./common.scss";
 $color: #56aa7a;
 %common {
 	padding: 2px;
@@ -99,7 +102,7 @@ $color: #56aa7a;
 	color: $color;
 	.three-detail {
 		margin: 10px 0;
-		> div {
+		.version {
 			margin: 6px 0;
 			label {
 				height: 12px;
@@ -115,7 +118,12 @@ $color: #56aa7a;
 		> div {
 			margin: 6px 0;
 		}
-		.status > label {
+		.renderer {
+			display: flex;
+			justify-content: left;
+			align-items: center;
+		}
+		.renderer-status > label {
 			height: 12px;
 			padding: 0px 4px;
 			border-radius: 4px;
@@ -123,25 +131,27 @@ $color: #56aa7a;
 			background-color: #dadada;
 		}
 		.radio-label {
+			flex-shrink: 0;
 			display: inline-block;
-			width: 14px;
-			height: 14px;
+			width: 13px;
+			height: 13px;
 			margin: 0 6px 0 0;
 			border: 1px solid $color;
-			vertical-align: middle;
-			border-radius: 50%;
+			border-radius: 7px;
 			box-sizing: border-box;
 			&:hover {
-				@extend %common;
+				// @extend %common;
 				box-shadow: 0 0 4px $color;
 			}
 		}
-		.renderer-name {
-			vertical-align: middle;
-		}
 	}
 	input[type="radio"]:checked + .radio-label {
-		@extend %common;
+		border: none;
+		border-radius: 0;
+		@include bgicon("../asset/radio-checked.png");
+		&:hover {
+			box-shadow: none;
+		}
 	}
 }
 </style>
