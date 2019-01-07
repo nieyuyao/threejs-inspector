@@ -24,13 +24,13 @@
         v-if="!messageVisible"
         class="renderer-panel-message">
         Looking for
-        <span class="renderer-panel-inline-logo">three.js</span> ...
+        <span class="renderer-panel-inline-logo"> three.js</span> ...
       </div>
       <div 
         v-if="!injected && messageVisible"
         class="renderer-inject-message">
         Choose one renderer for
-        <span class="renderer-panel-inline-logo">inspect</span> ...
+        <span class="renderer-panel-inline-logo"> inspect</span> ...
       </div>
     </div>
   </div>

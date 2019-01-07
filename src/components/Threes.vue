@@ -71,6 +71,7 @@ export default {
 <style lang="scss" scoped>
 @import "./common.scss";
 $color: #56aa7a;
+// $color: #ffab15;
 %common {
 	padding: 2px;
 	background-color: $color;

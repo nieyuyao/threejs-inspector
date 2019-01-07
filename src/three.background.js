@@ -47,9 +47,8 @@ connection$
           chrome.pageAction.setIcon({
             tabId,
             path: {
-              "16": "icons/icon-16.png",
               "32": "icons/icon-32.png",
-              "48": "icons/icon-48.png"
+              "64": "icons/icon-64.png"
             }
           });
         })

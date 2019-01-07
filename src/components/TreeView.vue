@@ -159,6 +159,7 @@ export default {
 .treeview-item {
   position: relative;
   color: #56aa7a;
+  // color: #ffab15;
   padding: 1px;
   display: flex;
   user-select: none;
