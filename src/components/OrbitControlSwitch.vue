@@ -67,8 +67,8 @@ export default {
     flex-shrink: 0;
     display: inline-block;
     margin-right: 6px;
-    width: 15px;
-    height: 15px;
+    width: 13px;
+    height: 13px;
     border: 1px solid #6e6e6e;
     border-radius: 4px;
     box-sizing: border-box;

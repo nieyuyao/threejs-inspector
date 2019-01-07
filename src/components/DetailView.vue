@@ -1,5 +1,6 @@
 <template>
   <div class="detailview" :class="platformClass">
+    <p class="detailview-title">Props &amp; Methods</p>
     <div 
       v-for="field in fields" 
       :key="field.path"
@@ -59,15 +60,22 @@ export default {
 		font-family: Consolas, "Lucida Console", "Courier New", monospace;
 	}
 }
+.detailview-title {
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7d60c3;
+}
 .detailview-item {
   display: flex;
   justify-content: left;
+  align-items: center;
   margin-bottom: 2px;
 }
 .detailview-label {
   display: inline-block;
   padding-right: 4px;
-  color: #56aa7a;
+  color: #7d60c3;
   font-size: 0;
   span  {
     font-size: 12px;
