@@ -54,7 +54,7 @@ const globalHook = {
       function() {
         __THREE_INSPECTOR_GLOBAL_HOOK__.reportFrontStage();
       }.toString()
-    )
+    );
   },
   disable() {
     this.executeInContext(
@@ -63,7 +63,13 @@ const globalHook = {
       }.toString()
     );
   },
-
+  // registerStats() {
+  //   this.executeInContext(
+  //     function() {
+  //       __THREE_INSPECTOR_GLOBAL_HOOK__.registerStats();
+  //     }.toString()
+  //   );
+  // },
   /**
    * Execute the javascript inside the context of the page.
    * @param {String} code
@@ -184,7 +190,8 @@ const globalHook = {
         if (!threeInstance) {
           respond("ERROR", "THREE_INSTANCE_NOT_EXIT", recipient);
         }
-        const rendererInstance = threeInstance.THREE.$$RendererList[rendererIndex];
+        const rendererInstance =
+          threeInstance.THREE.$$RendererList[rendererIndex];
         if (!rendererInstance) {
           respond("ERROR", "THREE_RENDERER_NOT_EXIT", recipient);
         }
@@ -281,6 +288,12 @@ port.onMessage.addListener(message => {
     case "DISCONNECTED":
       globalHook.disable();
       break;
+    // case "STATS_OPEN":
+    //   globalHook.registerStats();
+    //   break;
+    // case "STATS_CLOSE":
+    //   globalHook.abortStats();
+    //   break;
   }
 });
 

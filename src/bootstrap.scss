@@ -8,6 +8,11 @@ body {
   font-size: 12px;
   min-height: 100vh;
 }
+.divide {
+  width: 100%;
+  height: 1px;
+  background-color: #ccc;
+}
 [contenteditable] {
   cursor: text;
 }

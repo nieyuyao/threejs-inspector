@@ -9,7 +9,9 @@ import {
   debounceTime,
   combineLatest
 } from "rxjs/operators";
-
+import { parentElements, hideDom, showDom } from "../utils";
+import Stats from "stats.js";
+import OrbitControlsTool from "../aiders/OrbitControls";
 export const overlay = {
   div: null,
   renderer: null,
@@ -18,9 +20,20 @@ export const overlay = {
   camera: null,
   container: null
 };
-
 export default class InspectorGui {
   constructor(inspector) {
+    this.stats = {
+      ele: null,
+      panel: 0,
+      removeCallbackBefore: null,
+      removeCallbackAfter: null
+    };
+    this.orbitControl = {
+      ele: null,
+      removeCallbackBefore: null,
+      removeCallbackAfter: null
+    };
+    this.inspector = inspector;
     //初始化调试需要的three场景
     if (!overlay.THREE) {
       this.initOverlay(inspector);
@@ -277,16 +290,116 @@ export default class InspectorGui {
     camera.bottom = -window.innerHeight / 2;
     camera.updateProjectionMatrix();
   }
-}
-
-function parentElements(element) {
-  if (element === null) {
-    return [];
+  /**
+   * 辅助功能
+   * @param {Stirng} name 辅助功能的名称
+   * @param {Boolean} status 是否开启
+   * @param {Number} index 功能模式索引
+   */
+  aider(name, status = false, index = 0) {
+    const _name = `${name}_${status}`;
+    switch (_name) {
+      case "StatsSwitch_true":
+        this.setStatsPanel(index);
+        this.openStats();
+        break;
+      case "StatsSwitch_false":
+        this.closeStats();
+        break;
+      case "OrbitControlSwitch_true":
+        this.openOrbitControl();
+        break;
+      case "OrbitControlSwitch_false":
+        this.closeOrbitControl();
+        break;
+      case "AxesHelperSwitch_true":
+        this.openAxesHelper();
+        break;
+      case "AxesHelperSwitch_false":
+        this.openAxesHelper();
+        break;
+    }
   }
-  const elements = [];
-  while (element.parentElement) {
-    elements.push(element.parentElement);
-    element = element.parentElement;
+  //开启帧率显示
+  openStats() {
+    const { stats, inspector } = this;
+    if (!stats.ele) {
+      stats.ele = new Stats();
+      const { ele } = stats;
+      ele.dom.style.position = "absolute";
+      ele.dom.style.top = "0px";
+      ele.dom.style.left = "0px";
+      overlay.div.appendChild(ele.dom);
+    }
+    stats.ele.showPanel(stats.panel);
+    showDom(stats.ele.dom);
+    if (stats.removeCallbackAfter) {
+      return;
+    }
+    stats.removeCallbackBefore = inspector.registerHook("beforeRender", () => {
+      stats.ele.begin();
+    });
+    stats.removeCallbackAfter = inspector.registerHook("afterRender", () => {
+      stats.ele.end();
+    });
   }
-  return elements;
+  //关闭帧率显示
+  closeStats() {
+    const { stats } = this;
+    if (stats.ele) {
+      const { ele } = stats;
+      hideDom(ele.dom);
+      if (stats.removeCallbackBefore) {
+        stats.removeCallbackBefore();
+        stats.removeCallbackBefore = null;
+      }
+      if (stats.removeCallbackAfter) {
+        stats.removeCallbackAfter();
+        stats.removeCallbackAfter = null;
+      }
+    }
+  }
+  //设置开启帧率的那个显示模式
+  setStatsPanel(index) {
+    this.stats.panel = index;
+  }
+  //打开轨道控制器
+  openOrbitControl() {
+    const { orbitControl, inspector } = this;
+    if (!orbitControl.ele) {
+      const OrbitControls = OrbitControlsTool(inspector.instance.THREE);
+      orbitControl.removeCallbackAfter = inspector.registerHook(
+        "afterRender",
+        (container, camera) => {
+          if (!orbitControl.ele) {
+            orbitControl.ele = new OrbitControls(camera);
+          }
+          orbitControl.ele.update();
+        }
+      );
+    } else {
+      orbitControl.ele.enabled = true;
+      orbitControl.removeCallbackAfter = inspector.registerHook(
+        "afterRender",
+        () => {
+          orbitControl.ele.update();
+        }
+      );
+    }
+  }
+  //关闭轨道控制器
+  closeOrbitControl() {
+    const { orbitControl } = this;
+    if (orbitControl.ele) {
+      orbitControl.ele.enabled = false;
+      if (orbitControl.removeCallbackAfter) {
+        orbitControl.removeCallbackAfter();
+        orbitControl.removeCallbackAfter = null;
+      }
+    }
+  }
+  //开启坐标轴显示
+  openAxesHelper() {}
+  //关闭坐标显示
+  closeAxesHelper() {}
 }

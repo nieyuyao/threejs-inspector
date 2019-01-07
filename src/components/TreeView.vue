@@ -1,36 +1,46 @@
 <template>
-  <div 
-    class="treeview"
-    :class="platformClass" 
-    tabindex="1" 
-    @keydown.right.prevent="navigateRight" 
-    @keydown.left.prevent="navigateLeft" 
-    @keydown.up.prevent="navigateUp" 
-    @keydown.down.prevent="navigateDown">
+  <div>
     <div 
-      v-for="row in rows" 
-      :key="row.node.id" 
-      :data-id="row.node.id" 
-      :class="{'treeview-item-selected': selected && row.node.id === selected.id, 'treeview-item-found': row.node.found}" 
-      class="treeview-item" 
-      @mousedown="select(row.node)" 
-      @mouseenter="highlight(row.node)"
-      @dblclick="toggle(row.node)" 
-      @mouseleave="highlight(false)">
+      class="treeview"
+      :class="platformClass" 
+      tabindex="1" 
+      @keydown.right.prevent="navigateRight" 
+      @keydown.left.prevent="navigateLeft" 
+      @keydown.up.prevent="navigateUp" 
+      @keydown.down.prevent="navigateDown">
       <div 
-        :style="{width: (row.indent * 14) + 'px'}"
-        class="treeview-indent" />
-      <div class="treeview-toggle">
+        v-for="row in rows" 
+        :key="row.node.id" 
+        :data-id="row.node.id" 
+        :class="{'treeview-item-selected': selected && row.node.id === selected.id, 'treeview-item-found': row.node.found}" 
+        class="treeview-item" 
+        @mousedown="select(row.node)" 
+        @mouseenter="highlight(row.node)"
+        @dblclick="toggle(row.node)" 
+        @mouseleave="highlight(false)">
         <div 
-          v-if="row.node.children && row.node.collapsed" 
-          class="treeview-toggle-expand"
-          @click="expand(row.node)"/>
-        <div 
-          v-if="row.node.children && !row.node.collapsed" 
-          class="treeview-toggle-collapse" 
-          @click="collapse(row.node)"/>
+          :style="{width: (row.indent * 14) + 'px'}"
+          class="treeview-indent" />
+        <div class="treeview-toggle">
+          <div 
+            v-if="row.node.children && row.node.collapsed" 
+            class="treeview-toggle-expand"
+            @click="expand(row.node)"/>
+          <div 
+            v-if="row.node.children && !row.node.collapsed" 
+            class="treeview-toggle-collapse" 
+            @click="collapse(row.node)"/>
+        </div>
+        <div class="treeview-label" >{{ row.title }}</div>
       </div>
-      <div class="treeview-label" >{{ row.title }}</div>
+    </div>
+    <!-- 辅助功能 -->
+    <div class="divide"></div>
+    <div class="aider">
+      <!-- 1. 帧率显示 -->
+      <StatsSwitch class="stats-switch-aider" @aider="aider"></StatsSwitch>
+      <!-- 2. 轨道控制 -->
+      <OrbitControlSwitch class="orbit-switch-aider" @aider="aider"></OrbitControlSwitch>
     </div>
   </div>
 </template>
@@ -38,8 +48,15 @@
 <script>
 import { filter, map, switchMap } from "rxjs/operators";
 import latestInspector$ from "../services/latestInspector$";
+import StatsSwitch from "./StatsSwitch.vue";
+import OrbitControlSwitch from "./OrbitControlSwitch.vue";
 import getPlatForm from "../utils.js"
 export default {
+  name: "TreeView",
+  components: {
+    StatsSwitch,
+    OrbitControlSwitch
+  },
   subscriptions() {
     const inspector$ = latestInspector$.pipe(
       filter(inspector => inspector !== null)
@@ -55,6 +72,7 @@ export default {
       toggle: latestInspector$.method("toggle"),
       collapse: latestInspector$.method("collapse"),
       highlight: latestInspector$.method("highlight"),
+      aider: latestInspector$.method("aider"),
       platformClass: "platform-" + getPlatForm()
     };
   },
@@ -128,7 +146,6 @@ export default {
   }
 };
 </script>
-
 <style lang="scss">
 .treeview {
   padding: 4px 0;
@@ -139,10 +156,9 @@ export default {
 		font-family: Consolas, "Lucida Console", "Courier New", monospace;
 	}
 }
-
 .treeview-item {
   position: relative;
-  color: #5ba47a;
+  color: #56aa7a;
   padding: 1px;
   display: flex;
   user-select: none;
@@ -150,37 +166,33 @@ export default {
     color: #5db0d7;
   }
 }
-
 .treeview-toggle {
   position: relative;
   width: 12px;
   height: 12px;
 }
-
 .treeview-toggle-expand {
-  border: 4px solid transparent;
-  border-left-color: #6e6e6e;
-  border-left-width: 6px;
   position: absolute;
   top: 2px;
   left: 4px;
+  border: 4px solid transparent;
+  border-left-color: #6e6e6e;
+  border-left-width: 6px;
   .dark-mode & {
     border-left-color: #bdc6cf;
   }
 }
-
 .treeview-toggle-collapse {
-  border: 4px solid transparent;
-  border-top-color: #6e6e6e;
-  border-top-width: 6px;
   position: absolute;
   top: 3px;
   left: 2px;
+  border: 4px solid transparent;
+  border-top-color: #6e6e6e;
+  border-top-width: 6px;
   .dark-mode & {
     border-top-color: #bdc6cf;
   }
 }
-
 .treeview-item--hovered,
 .treeview-item:hover:not(.treeview-item-selected) {
   &:before {
@@ -198,14 +210,12 @@ export default {
     }
   }
 }
-
 .treeview-item-selected {
   background: #d4d4d4;
   .dark-mode.dark-mode & {
     background: #342e25;
   }
 }
-
 .treeview-item-found {
   &:after {
     content: "";
@@ -218,7 +228,6 @@ export default {
     background: #ffff0070;
   }
 }
-
 .treeview:focus {
   outline: none;
 
@@ -243,5 +252,11 @@ export default {
       }
     }
   }
+}
+.stats-switch-aider {
+  margin: 6px 0 6px 6px;
+}
+.orbit-switch-aider {
+  margin: 6px 0 6px 6px;
 }
 </style>

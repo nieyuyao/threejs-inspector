@@ -85,7 +85,16 @@ export default class AsyncInspector {
   setProperty(path, value) {
     return this.call("properties.set", path, value);
   }
-
+  toggleDetailView(field) {
+    if (field.type !== "object" || field.value === null) {
+      return;
+    }
+    return this.call("properties.toggleDetailView", field.path);
+  }
+  //辅助功能
+  aider(...args) {
+    return this.call("gui.aider", args[0], args[1], args[2]);
+  }
   highlight(node) {
     return this.call("outliner.highlight", node.id);
   }
