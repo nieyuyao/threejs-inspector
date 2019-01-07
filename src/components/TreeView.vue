@@ -41,6 +41,8 @@
       <StatsSwitch class="stats-switch-aider" @aider="aider"></StatsSwitch>
       <!-- 2. 轨道控制 -->
       <OrbitControlSwitch class="orbit-switch-aider" @aider="aider"></OrbitControlSwitch>
+      <!-- 3. 坐标轴 -->
+      <AxesHelperSwitch class="axes-switch-aider" @aider="aider"></AxesHelperSwitch>
     </div>
   </div>
 </template>
@@ -50,12 +52,14 @@ import { filter, map, switchMap } from "rxjs/operators";
 import latestInspector$ from "../services/latestInspector$";
 import StatsSwitch from "./StatsSwitch.vue";
 import OrbitControlSwitch from "./OrbitControlSwitch.vue";
+import AxesHelperSwitch from "./AxesHelperSwitch.vue";
 import getPlatForm from "../utils.js"
 export default {
   name: "TreeView",
   components: {
     StatsSwitch,
-    OrbitControlSwitch
+    OrbitControlSwitch,
+    AxesHelperSwitch
   },
   subscriptions() {
     const inspector$ = latestInspector$.pipe(
@@ -254,10 +258,13 @@ export default {
     }
   }
 }
-.stats-switch-aider {
+[class*="switch-aider"] {
   margin: 6px 0 6px 6px;
 }
-.orbit-switch-aider {
-  margin: 6px 0 6px 6px;
-}
+// .stats-switch-aider {
+//   margin: 6px 0 6px 6px;
+// }
+// .orbit-switch-aider {
+//   margin: 6px 0 6px 6px;
+// }
 </style>

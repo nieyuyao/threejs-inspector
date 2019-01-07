@@ -33,6 +33,10 @@ export default class InspectorGui {
       removeCallbackBefore: null,
       removeCallbackAfter: null
     };
+    this.axes = {
+      ele: null,
+      removeCallbackAfter: null
+    };
     this.inspector = inspector;
     //初始化调试需要的three场景
     if (!overlay.THREE) {
@@ -399,7 +403,74 @@ export default class InspectorGui {
     }
   }
   //开启坐标轴显示
-  openAxesHelper() {}
+  openAxesHelper() {
+    const { THREE } = this.inspector.instance;
+    if (!THREE.AxesHelper) {
+      /* eslint-disable */
+      const { BufferGeometry, Float32BufferAttribute, LineBasicMaterial, LineSegments } = THREE;
+      THREE.AxesHelper = function(size) {
+        size = size || 1;
+        var vertices = [
+          0, 0, 0,	size, 0, 0,
+          0, 0, 0,	0, size, 0,
+          0, 0, 0,	0, 0, size
+        ];
+        var colors = [
+          1, 0, 0, 1, 0.6, 0,
+          0, 1, 0, 0.6, 1, 0,
+          0, 0, 1, 0, 0.6, 1
+        ];
+        var geometry = new BufferGeometry();
+        geometry.addAttribute("position", new Float32BufferAttribute(vertices, 3));
+        geometry.addAttribute("color", new Float32BufferAttribute(colors, 3));
+
+        var material = new LineBasicMaterial({vertexColors: 2});
+        LineSegments.call(this, geometry, material);
+      }
+      THREE.AxesHelper.prototype = Object.create(LineSegments.prototype);
+      THREE.AxesHelper.prototype.constructor = AxesHelper;
+      this.openAxesHelper();
+      /* eslint-enable */
+    } else {
+      const { axes, inspector } = this;
+      const name = "$axesHelper";
+      if (!axes.ele) {
+        const axesHelper = new THREE.AxesHelper(20000);
+        axesHelper.name = name;
+        axes.ele = axesHelper;
+        axes.removeCallbackAfter = inspector.registerHook(
+          "afterRender",
+          container => {
+            if (container.getObjectByName && !container.getObjectByName(name)) {
+              container.add(axesHelper);
+            }
+          }
+        );
+      } else {
+        axes.removeCallbackAfter = inspector.registerHook(
+          "afterRender",
+          container => {
+            if (container.getObjectByName) {
+              const axesHelper =
+                container.getObjectByName && container.getObjectByName(name);
+              if (axesHelper) {
+                axesHelper.visible = false;
+              }
+            }
+          }
+        );
+      }
+    }
+  }
   //关闭坐标显示
-  closeAxesHelper() {}
+  closeAxesHelper() {
+    const { axes } = this;
+    if (axes.ele) {
+      if (axes.removeCallbackAfter) {
+        axes.ele.visible = false;
+        axes.removeCallbackAfter();
+        axes.removeCallbackAfter = null;
+      }
+    }
+  }
 }

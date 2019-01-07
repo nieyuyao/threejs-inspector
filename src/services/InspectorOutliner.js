@@ -250,6 +250,12 @@ function hasChanged(node, serialized) {
   }
   if (!serialized.collapsed) {
     const length = node.children.length;
+    if (serialized.children === null) {
+      if (length === 0) {
+        return true;
+      }
+      return false;
+    }
     if (length !== serialized.children.length) {
       // detect child removal/addition
       return true;
