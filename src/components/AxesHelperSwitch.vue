@@ -5,15 +5,9 @@
       <label for="axes-helper" class="axes-helper-label"></label>
       <span class="axes-helper-name">Axes Helper</span>
     </div>
-    <div>
+    <div class="size-input-wrapper">
       size: 
-      <span
-        class="size-input"
-        contenteditable="true"
-        @focus="onFocus"
-        @blur="onBlur"
-        @keydown.enter="keydown"
-      ></span>
+      <input type="number" v-model="size" min="0">
     </div>
   </div>
 </template>
@@ -22,6 +16,11 @@ import getPlatForm from "../utils.js";
 import connection from "../services/connection.js";
 export default {
   name: "AxesHelperSwitch",
+  data() {
+    return {
+      size: 2000
+    }
+  },
   computed: {
     platformClass() {
       return "platform-" + getPlatForm();
@@ -87,13 +86,16 @@ export default {
       box-shadow: none;
     }
   }
-  .size-input {
-    display: block;
-    min-width: 50px;
-    border: none;
-    box-sizing: border-box;
-  }
 }
+.size-input-wrapper {
+    margin: 6px 0 6px 20px;
+    > input {
+      width: 120px;
+      border: 1px solid #64b587;
+      border-radius: 2px;
+      outline: none;
+    }
+  }
 </style>
 
 

@@ -31,7 +31,7 @@
             class="treeview-toggle-collapse" 
             @click="collapse(row.node)"/>
         </div>
-        <div class="treeview-label" >{{ row.title }}</div>
+        <div class="treeview-title" >{{ row.title }}</div>
       </div>
     </div>
     <!-- 辅助功能 -->
@@ -97,7 +97,7 @@ export default {
         node.name !== null &&
         node.name !== ""
       ) {
-        title = node.type + " [" + node.name + "]";
+        title = node.type + "[" + node.name + "]";
       }
       rows.push({ indent, node, title });
       indent++;

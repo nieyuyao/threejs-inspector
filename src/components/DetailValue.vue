@@ -19,7 +19,7 @@
       >
       {{ field.value }}
     </label>
-    <span v-else :style="{'font-style': field.type === 'function' ? 'italic' : 'normal'}">{{ field.value }}</span>
+    <span v-else class="field-other-types" :class="feildClass(field.type)">{{ field.value }}</span>
   </div>
 </template>
 
@@ -118,6 +118,9 @@ export default {
       }
       this.fieldValue = newValue;
       this.$emit("change", newValue);
+    },
+    feildClass(val) {
+      return "type-" + val;
     }
   }
 };
@@ -138,5 +141,14 @@ export default {
   position: absolute;
   top: -2px;
   left: -6px;
+}
+.field-other-types {
+  &.type-function {
+    font-style: italic;
+    color: #7d60c3;
+  }
+  &.type-object {
+    color: #56aa7a;
+  }
 }
 </style>
