@@ -11,6 +11,7 @@ import {
 } from "rxjs/operators";
 import { parentElements, hideDom, showDom } from "../utils";
 import Stats from "stats.js";
+import OrbitControlsTool from "../aiders/OrbitControls";
 export const overlay = {
   div: null,
   renderer: null,
@@ -305,6 +306,18 @@ export default class InspectorGui {
       case "StatsSwitch_false":
         this.closeStats();
         break;
+      case "OrbitControlSwitch_true":
+        this.openOrbitControl();
+        break;
+      case "OrbitControlSwitch_false":
+        this.closeOrbitControl();
+        break;
+      case "AxesHelperSwitch_true":
+        this.openAxesHelper();
+        break;
+      case "AxesHelperSwitch_false":
+        this.openAxesHelper();
+        break;
     }
   }
   //开启帧率显示
@@ -350,4 +363,43 @@ export default class InspectorGui {
   setStatsPanel(index) {
     this.stats.panel = index;
   }
+  //打开轨道控制器
+  openOrbitControl() {
+    const { orbitControl, inspector } = this;
+    if (!orbitControl.ele) {
+      const OrbitControls = OrbitControlsTool(inspector.instance.THREE);
+      orbitControl.removeCallbackAfter = inspector.registerHook(
+        "afterRender",
+        (container, camera) => {
+          if (!orbitControl.ele) {
+            orbitControl.ele = new OrbitControls(camera);
+          }
+          orbitControl.ele.update();
+        }
+      );
+    } else {
+      orbitControl.ele.enabled = true;
+      orbitControl.removeCallbackAfter = inspector.registerHook(
+        "afterRender",
+        () => {
+          orbitControl.ele.update();
+        }
+      );
+    }
+  }
+  //关闭轨道控制器
+  closeOrbitControl() {
+    const { orbitControl } = this;
+    if (orbitControl.ele) {
+      orbitControl.ele.enabled = false;
+      if (orbitControl.removeCallbackAfter) {
+        orbitControl.removeCallbackAfter();
+        orbitControl.removeCallbackAfter = null;
+      }
+    }
+  }
+  //开启坐标轴显示
+  openAxesHelper() {}
+  //关闭坐标显示
+  closeAxesHelper() {}
 }

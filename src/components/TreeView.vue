@@ -40,6 +40,7 @@
       <!-- 1. 帧率显示 -->
       <StatsSwitch class="stats-switch-aider" @aider="aider"></StatsSwitch>
       <!-- 2. 轨道控制 -->
+      <OrbitControlSwitch class="orbit-switch-aider" @aider="aider"></OrbitControlSwitch>
     </div>
   </div>
 </template>
@@ -48,11 +49,13 @@
 import { filter, map, switchMap } from "rxjs/operators";
 import latestInspector$ from "../services/latestInspector$";
 import StatsSwitch from "./StatsSwitch.vue";
+import OrbitControlSwitch from "./OrbitControlSwitch.vue";
 import getPlatForm from "../utils.js"
 export default {
   name: "TreeView",
   components: {
-    StatsSwitch
+    StatsSwitch,
+    OrbitControlSwitch
   },
   subscriptions() {
     const inspector$ = latestInspector$.pipe(
@@ -251,6 +254,9 @@ export default {
   }
 }
 .stats-switch-aider {
+  margin: 6px 0 6px 6px;
+}
+.orbit-switch-aider {
   margin: 6px 0 6px 6px;
 }
 </style>
