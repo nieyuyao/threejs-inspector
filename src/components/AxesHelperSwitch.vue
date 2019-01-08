@@ -5,6 +5,10 @@
       <label for="axes-helper" class="axes-helper-label"></label>
       <span class="axes-helper-name">Axes Helper</span>
     </div>
+    <div class="size-input-wrapper">
+      size: 
+      <input type="number" v-model="size" min="0">
+    </div>
   </div>
 </template>
 <script>
@@ -12,14 +16,28 @@ import getPlatForm from "../utils.js";
 import connection from "../services/connection.js";
 export default {
   name: "AxesHelperSwitch",
-  methods: {
-    toggle(checked) {
-      this.$emit("aider", this.$options.name, checked);
+  data() {
+    return {
+      size: 2000
     }
   },
   computed: {
     platformClass() {
       return "platform-" + getPlatForm();
+    }
+  },
+  methods: {
+    toggle(checked) {
+      this.$emit("aider", this.$options.name, checked);
+    },
+    onFocus() {
+
+    },
+    onBlur() {
+
+    },
+    keydown() {
+
     }
   }
 };
@@ -48,8 +66,8 @@ export default {
     flex-shrink: 0;
     display: inline-block;
     margin-right: 6px;
-    width: 15px;
-    height: 15px;
+    width: 13px;
+    height: 13px;
     border: 1px solid #6e6e6e;
     border-radius: 4px;
     box-sizing: border-box;
@@ -69,6 +87,15 @@ export default {
     }
   }
 }
+.size-input-wrapper {
+    margin: 6px 0 6px 20px;
+    > input {
+      width: 120px;
+      border: 1px solid #64b587;
+      border-radius: 2px;
+      outline: none;
+    }
+  }
 </style>
 
 

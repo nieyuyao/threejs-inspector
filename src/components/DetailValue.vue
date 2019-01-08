@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <div>
     <span 
       v-if="field.type === 'number' || field.type === 'string'" 
       class="detailvalue-input" 
@@ -19,8 +19,8 @@
       >
       {{ field.value }}
     </label>
-    <span v-else :style="{'font-style': field.type === 'function' ? 'italic' : 'normal'}">{{ field.value }}</span>
-  </span>
+    <span v-else class="field-other-types" :class="feildClass(field.type)">{{ field.value }}</span>
+  </div>
 </template>
 
 <script>
@@ -118,6 +118,9 @@ export default {
       }
       this.fieldValue = newValue;
       this.$emit("change", newValue);
+    },
+    feildClass(val) {
+      return "type-" + val;
     }
   }
 };
@@ -125,9 +128,10 @@ export default {
 
 <style lang="scss">
 .detailvalue-input {
-  border: none;
-  min-width: 50px;
   display: block;
+  min-width: 50px;
+  border: none;
+  box-sizing: border-box;
 }
 .detailvalue-label {
   position: relative;
@@ -137,5 +141,14 @@ export default {
   position: absolute;
   top: -2px;
   left: -6px;
+}
+.field-other-types {
+  &.type-function {
+    font-style: italic;
+    color: #7d60c3;
+  }
+  &.type-object {
+    color: #56aa7a;
+  }
 }
 </style>

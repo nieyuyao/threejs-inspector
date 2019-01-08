@@ -1,6 +1,6 @@
 <template>
   <div 
-    :class="{'dark-mode': darkMode}" 
+    :class="{'dark-mode': darkMode, 'platform-mac': platformClass === 'platform-mac', 'platform-windows': platformClass === 'platform-windows'}"
     class="three-panel">
     <Toolbar class="tool-bar">
       <!-- <Toggle icon="node-search" v-if="isConnected" :value="selectMode" @change="toggleSelectMode" title="Select a node in the scene to inspect it"></Toggle> -->
@@ -24,13 +24,13 @@
         v-if="!messageVisible"
         class="renderer-panel-message">
         Looking for
-        <span class="renderer-panel-inline-logo">three.js</span> ...
+        <span class="renderer-panel-inline-logo"> three.js</span> ...
       </div>
       <div 
         v-if="!injected && messageVisible"
         class="renderer-inject-message">
         Choose one renderer for
-        <span class="renderer-panel-inline-logo">inspect</span> ...
+        <span class="renderer-panel-inline-logo"> inspect</span> ...
       </div>
     </div>
   </div>
@@ -48,12 +48,14 @@ import connection from "../services/connection";
 import active$ from "../services/active$";
 import latestInspector$ from "../services/latestInspector$";
 import { map, switchMap, startWith, tap } from "rxjs/operators";
+import getPlatForm from "../utils.js"
 export default {
   name: 'ThreePanel',
   components: { Toolbar, Toggle, SplitView, TreeView, DetailView, Threes },
   data() {
     return {
-      search: ""
+      search: "",
+      platformClass: "platform-" + getPlatForm()
     };
   },
   computed: {
@@ -110,23 +112,31 @@ export default {
   flex-direction: column;
   width: 100%;
   height: 100vh;
-  font-size: 11px !important;
-  font-family: Menlo, monospace;
+  font-size: 12px;
   color: #222;
+  overflow: hidden;
   cursor: default;
+  &.platform-mac {
+		font-family: Menlo, monospace;
+	}
+	&.platform-windows {
+		font-family: Consolas, "Lucida Console", "Courier New", monospace;
+	}
 }
 .dark-mode {
   color: #bdc6cf;
 }
 .tool-bar {
   button {
+    font-family: Menlo, monospace;
     color: #64b587;
   }
   .three-panel-search {
-    border: 1px solid #fff;
     padding: 2px 3px 1px 3px;
+    border: 1px solid #fff;
     border-radius: 2px;
-    font: 12px;
+    font-family: Menlo, monospace;
+    font-size: 12px;
     &:focus {
       outline: none;
     }
