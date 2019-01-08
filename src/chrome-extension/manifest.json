@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "three.js inspector",
   "description": "Developer Tools for inspecting and debugging games written with Three.js",
-  "version": "0.0",
+  "version": "1.0",
   "page_action": {
     "default_icon": {
       "32": "icons/icon-32-gray.png",
