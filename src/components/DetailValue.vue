@@ -2,7 +2,7 @@
   <div>
     <span 
       v-if="field.type === 'number' || field.type === 'string'" 
-      class="detailvalue-input" 
+      :class="['detailvalue-input', feildClass(field.type)]"
       contenteditable="true" 
       @focus="onFocus"
       @blur="onBlur"
@@ -19,7 +19,7 @@
       >
       {{ field.value }}
     </label>
-    <span v-else class="field-other-types" :class="feildClass(field.type)">{{ field.value }}</span>
+    <span v-else :class="['field-other-types', feildClass(field.type)]">{{ field.value }}</span>
   </div>
 </template>
 
@@ -132,10 +132,17 @@ export default {
   min-width: 50px;
   border: none;
   box-sizing: border-box;
+  &.type-string {
+    color: #da8b37;
+  }
+  &.type-number {
+    color: #3674e0;
+  }
 }
 .detailvalue-label {
   position: relative;
   padding-left: 12px;
+  color: #3674e0;
 }
 .detailvalue-label input {
   position: absolute;
@@ -145,10 +152,10 @@ export default {
 .field-other-types {
   &.type-function {
     font-style: italic;
-    color: #7d60c3;
+    color: #333;
   }
   &.type-object {
-    color: #56aa7a;
+    color: #333;
   }
 }
 </style>
