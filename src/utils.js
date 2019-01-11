@@ -32,3 +32,20 @@ export function hideDom(dom) {
 export function showDom(dom, display = "block") {
   dom.style.display = display;
 }
+export function isSupportPassive() {
+  let passiveSupported = false;
+  try {
+    const options = Object.defineProperty({}, "passive", {
+      get() {
+        passiveSupported = true;
+        return passiveSupported;
+      }
+    });
+    window.addEventListener("test", null, options);
+  } catch (err) {
+    /* eslint-disable no-console */
+    console.error(err);
+    /* eslint-enable no-console */
+  }
+  return passiveSupported;
+}

@@ -56,6 +56,14 @@ const globalHook = {
       }.toString()
     );
   },
+  //如果devtools进入后台
+  reportDisconnnect() {
+    this.executeInContext(
+      function() {
+        __THREE_INSPECTOR_GLOBAL_HOOK__.reportDisconnnect();
+      }.toString()
+    );
+  },
   disable() {
     this.executeInContext(
       function() {
@@ -247,6 +255,9 @@ const globalHook = {
           this.inspectors[this.inspecting].enable();
         }
       },
+      reportDisconnnect() {
+        emit("DISCONNECT");
+      },
       disable() {
         Object.values(this.inspectors).forEach(inspector => {
           inspector.disable();
@@ -321,4 +332,8 @@ window.onload = function() {
       globalHook.reportDetection();
     }
   }, 1000);
+};
+//监听页面卸载事件
+window.onbeforeunload = function() {
+  globalHook.reportDisconnnect();
 };

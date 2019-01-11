@@ -26,6 +26,7 @@ export default class AsyncInspector {
       return concat(
         this.call("outliner.tree"),
         connection.on("TREE").pipe(map(message => message.data))
+        // connection.on("DISCONNECT").pipe(map(() => []))
       ).pipe(
         tap(tree => {
           root = tree;
@@ -83,7 +84,9 @@ export default class AsyncInspector {
   }
 
   setProperty(path, value) {
-    return this.call("properties.set", path, value);
+    return this.call("properties.set", path, value).catch(err => {
+      throw err;
+    });
   }
   toggleDetailView(field) {
     if (field.type !== "object" || field.value === null) {
@@ -96,7 +99,9 @@ export default class AsyncInspector {
     return this.call("gui.aider", args[0], args[1], args[2]);
   }
   highlight(node) {
-    return this.call("outliner.highlight", node.id);
+    return this.call("outliner.highlight", node.id).catch(err => {
+      throw err;
+    });
   }
 
   captureRendererList() {
@@ -108,24 +113,29 @@ export default class AsyncInspector {
       const dot = method.indexOf(".");
       let value;
       if (dot === -1) {
-        value = this.inspector[method](...args);
+        value = this.inspector[method] && this.inspector[method](...args);
       } else {
         const helper = this.inspector[method.substr(0, dot)];
         const _method = method.substr(dot + 1);
-        value = helper[_method](...args);
+        value = helper && helper[_method](...args);
       }
       if (typeof value !== "undefined") {
         value = JSON.parse(JSON.stringify(value));
       }
       return Promise.resolve(value);
     }
-    const code =
-      this.path +
-      "." +
-      method +
-      "(" +
-      args.map(arg => JSON.stringify(arg)).join(", ") +
-      ");";
+    const code = `
+      if (${this.path}) {
+        ${this.path}.${method}(
+        ${args.map(arg => JSON.stringify(arg)).join(", ")}
+      );}
+    `;
+    // this.path +
+    // "." +
+    // method +
+    // "(" +
+    // args.map(arg => JSON.stringify(arg)).join(", ") +
+    // ");";
     return asyncEval(code, this.target);
   }
 }

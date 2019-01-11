@@ -26,12 +26,15 @@ export const renderer$ = instances$.pipe(
   }),
   filter(frame => frame !== null)
 );
-renderer$.select = function(query) {
+renderer$.select = function(query = "") {
   let queryArray = query.split(".");
+  if (queryArray.length < 2) {
+    return;
+  }
   queryArray = queryArray.slice(0, 2);
   const queryObject = {};
-  queryObject.threeIndex = Number(queryArray[0] || 0);
-  queryObject.rendererIndex = Number(queryArray[1] || 0);
+  queryObject.threeIndex = Number(queryArray[0]);
+  queryObject.rendererIndex = Number(queryArray[1]);
   relaySubject.next(queryObject);
 };
 

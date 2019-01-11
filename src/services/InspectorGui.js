@@ -196,6 +196,7 @@ export default class InspectorGui {
   /*eslint-disable class-methods-use-this */
   initOverlay(inspector) {
     overlay.THREE = inspector.instance.THREE;
+    const THREE = overlay.THREE;
     overlay.div = document.createElement("div");
     overlay.div.id = "three-inspector-overlay";
     const style = document.createElement("style");
@@ -224,7 +225,7 @@ export default class InspectorGui {
     canvas.width = width;
     canvas.height = height;
     overlay.div.appendChild(canvas);
-    overlay.scene = new overlay.THREE.Scene();
+    overlay.scene = new THREE.Scene();
     const renderOptions = {
       canvas,
       pixelRatio: window.devicePixelRatio,
@@ -235,9 +236,9 @@ export default class InspectorGui {
       maxLights: 8,
       name: "three-inspector-renderer"
     };
-    overlay.renderer = new overlay.THREE.WebGLRenderer(renderOptions);
+    overlay.renderer = new THREE.WebGLRenderer(renderOptions);
     //create three camera and set position of camera
-    const camera = new overlay.THREE.OrthographicCamera(
+    const camera = new THREE.OrthographicCamera(
       -width / 2,
       width / 2,
       height / 2,
@@ -246,7 +247,9 @@ export default class InspectorGui {
       1000
     );
     camera.position.set(0, 0, 500);
-    camera.lookAt(0, 0, 0);
+    // camera.lookAt(0, 0, 0);
+    //兼容较低版本three.js，looAt方法应传入向量
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
     overlay.camera = camera;
     //create three group
     overlay.container = new overlay.THREE.Group();
@@ -428,7 +431,7 @@ export default class InspectorGui {
         LineSegments.call(this, geometry, material);
       }
       THREE.AxesHelper.prototype = Object.create(LineSegments.prototype);
-      THREE.AxesHelper.prototype.constructor = AxesHelper;
+      THREE.AxesHelper.prototype.constructor = THREE.AxesHelper;
       this.openAxesHelper();
       /* eslint-enable */
     } else {

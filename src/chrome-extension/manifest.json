@@ -3,6 +3,10 @@
   "name": "three.js inspector",
   "description": "Developer Tools for inspecting and debugging games written with Three.js",
   "version": "1.0",
+  "icons": {
+    "32": "icons/icon-32.png",
+    "64": "icons/icon-64.png"
+  },
   "page_action": {
     "default_icon": {
       "32": "icons/icon-32-gray.png",
