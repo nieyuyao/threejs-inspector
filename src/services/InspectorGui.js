@@ -459,7 +459,11 @@ export default class InspectorGui {
               if (axesHelper.size === extra.size) {
                 axesHelper.size = extra.size;
               }
-              if (axesHelper && !axesHelper.visible) {
+              if (
+                axesHelper &&
+                !axesHelper.visible &&
+                axes.removeCallbackAfter
+              ) {
                 axesHelper.visible = true;
               }
             }

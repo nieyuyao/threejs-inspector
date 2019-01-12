@@ -29,7 +29,6 @@ export default {
   },
   watch: {
     size(newVal, oldVal) {
-      console.log(newVal)
       if (oldVal !== newVal && this.checked) {
         this.$emit("aider", this.$options.name, true, 0, {
           size: newVal
