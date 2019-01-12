@@ -39,17 +39,20 @@ connection$
             console.log("DETECTED", {
               tabId
             });
-          chrome.pageAction.show(tabId);
-          chrome.pageAction.setTitle({
+          chrome.browserAction.setPopup({
             tabId,
-            title: "Three.JS"
+            popup: "popups/three.enabled.html"
           });
-          chrome.pageAction.setIcon({
-            tabId,
+          chrome.browserAction.setTitle({
+            title: "Three.JS",
+            tabId
+          });
+          chrome.browserAction.setIcon({
             path: {
               "32": "icons/icon-32.png",
               "64": "icons/icon-64.png"
-            }
+            },
+            tabId
           });
         })
       );

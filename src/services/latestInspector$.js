@@ -41,6 +41,7 @@ renderer$.select = function(query = "") {
 /**
  * Create a AsyncInspector for the detected instance
  */
+let preInspector = null;
 const latestInspector$ = relaySubject.pipe(
   withLatestFrom(renderer$),
   map(([queryObject, frame]) => Object.assign(queryObject, frame)),
@@ -62,6 +63,10 @@ const latestInspector$ = relaySubject.pipe(
             });
             observer.next(inspector);
             inspector.enable();
+            if (preInspector) {
+              preInspector.disable();
+            }
+            preInspector = inspector;
             return () => {
               inspector.disable();
             };

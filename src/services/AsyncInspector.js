@@ -2,6 +2,7 @@ import { Subject, defer, concat, merge as mergeObservables } from "rxjs";
 import { tap, merge, publishReplay, refCount, map } from "rxjs/operators";
 import asyncEval from "../devtools-rx/asyncEval";
 import connection from "./connection";
+/* eslint-disable no-useless-call */
 
 /**
  * Async access to the Inspector.
@@ -96,7 +97,7 @@ export default class AsyncInspector {
   }
   //辅助功能
   aider(...args) {
-    return this.call("gui.aider", args[0], args[1], args[2]);
+    return this.call.apply(this, ["gui.aider", ...args]);
   }
   highlight(node) {
     return this.call("outliner.highlight", node.id).catch(err => {

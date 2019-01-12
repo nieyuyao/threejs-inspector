@@ -2,22 +2,25 @@
   <div 
     :class="{'dark-mode': darkMode, 'platform-mac': platformClass === 'platform-mac', 'platform-windows': platformClass === 'platform-windows'}"
     class="three-panel">
-    <Toolbar class="tool-bar">
-      <!-- <Toggle icon="node-search" v-if="isConnected" :value="selectMode" @change="toggleSelectMode" title="Select a node in the scene to inspect it"></Toggle> -->
-      <button @click="reload">Reconnect</button>
-      <input 
-        v-model="search" 
-        class="three-panel-search"
-        type="search" 
-        placeholder="Find by name"
-        @keyup.enter="searchFilter(search)">
-    </Toolbar>
     <div class="three-panel-body">
-      <Threes class="renderer-panel-body" v-if="messageVisible"></Threes>
+      <Threes class="renderer-panel-body" v-if="messageVisible">
+        <div class="toolbar">
+          <button @click="reload">Reconnect</button>
+        </div>
+      </Threes>
       <SplitView 
         v-if="injected" 
         class="renderer-inject-body">
-        <TreeView :search="search"/>
+        <TreeView :search="search">
+          <div class="toolbar">
+            <input
+            class="three-panel-search"
+            v-model="search" 
+            type="search" 
+            placeholder="Find by name"
+            @keyup.enter="searchFilter(search)">
+          </div>
+        </TreeView>
         <DetailView/>
       </SplitView>
       <div 
@@ -38,7 +41,6 @@
 
 <script>
 import { of, timer } from "rxjs";
-import Toolbar from "./Toolbar.vue";
 import Toggle from "./Toggle.vue";
 import SplitView from "./SplitView.vue";
 import TreeView from "./TreeView.vue";
@@ -51,7 +53,7 @@ import { map, switchMap, startWith, tap } from "rxjs/operators";
 import getPlatForm from "../utils.js"
 export default {
   name: 'ThreePanel',
-  components: { Toolbar, Toggle, SplitView, TreeView, DetailView, Threes },
+  components: { Toggle, SplitView, TreeView, DetailView, Threes },
   data() {
     return {
       search: "",
@@ -126,12 +128,15 @@ export default {
 .dark-mode {
   color: #bdc6cf;
 }
-.tool-bar {
-  button {
+.toolbar {
+  border-bottom: 1px solid #dadada;
+  color: #5a5a5a;
+  padding: 3px 5px;
+  & button {
     font-family: Menlo, monospace;
     color: #64b587;
   }
-  .three-panel-search {
+  & .three-panel-search {
     padding: 2px 3px 1px 3px;
     border: 1px solid #fff;
     border-radius: 2px;

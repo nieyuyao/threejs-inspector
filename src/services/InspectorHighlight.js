@@ -14,32 +14,34 @@ export default class InspectorHighlight {
     this.cube = new THREE.Mesh(plane, material);
     this.cube.width = 100;
     this.cube.height = 100;
+    this.cube.visible = false;
     this.gui.container.add(this.cube);
-    const pointsGeometry = new THREE.BufferGeometry();
+    const pointGeometry = new THREE.BufferGeometry();
     const vertices = new Float32Array([0, 0, -0.8]);
     const scales = new Float32Array([2.0]);
-    pointsGeometry.addAttribute(
+    pointGeometry.addAttribute(
       "position",
       new THREE.BufferAttribute(vertices, 3)
     );
-    pointsGeometry.addAttribute("scale", new THREE.BufferAttribute(scales, 1));
-    const pointsMaterial = new THREE.PointsMaterial({
+    pointGeometry.addAttribute("scale", new THREE.BufferAttribute(scales, 1));
+    const pointMaterial = new THREE.PointsMaterial({
       size: 5,
       color: 0x007eff,
       opacity: 1
     });
-    const points = new THREE.Points(pointsGeometry, pointsMaterial);
-    this.points = points;
-    this.gui.container.add(this.points);
+    const point = new THREE.Points(pointGeometry, pointMaterial);
+    point.visible = false;
+    this.point = point;
+    this.gui.container.add(this.point);
     inspector.registerHook("afterRender", this.update.bind(this));
   }
 
   update(container, camera) {
-    const { cube, points, gui, inspector } = this;
+    const { cube, point, gui, inspector } = this;
     const node = InspectorHighlight.node;
     if (node && node.parent) {
       cube.visible = true;
-      points.visible = true;
+      point.visible = true;
       const { geometry } = node;
       //
       const centerPos = node.position.clone(); //node位置
@@ -92,7 +94,7 @@ export default class InspectorHighlight {
         );
         //更新宽高
         const cameraPos = gui.camera.position;
-        points.position.set(
+        point.position.set(
           cubePos.x + cameraPos.x / 3,
           cubePos.y + cameraPos.y / 3,
           cubePos.z + cameraPos.z / 3
@@ -100,7 +102,7 @@ export default class InspectorHighlight {
       }
     } else {
       cube.visible = false;
-      points.visible = false;
+      point.visible = false;
     }
   }
 }

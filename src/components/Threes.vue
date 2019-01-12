@@ -1,5 +1,6 @@
 <template>
   <div class="renderers-panel" :class="platformClass">
+    <slot></slot>
     <div class="title">Inspector THREE List</div>
     <div class="three-item" v-for="three in threes" :key="three.id">
       <div class="three-detail">
@@ -17,7 +18,6 @@
             :value="`${three.id}.${k}`"
             :id="'radio-' + k"
             v-model="checkedRenderer"
-            v-stream:change="{subject: radio$, data: {query: `${three.id}.${k}`, renderer: renderer}}"
             hidden
           >
           <!-- @change="change(`${three.id}.${k}`, renderer)" -->
@@ -36,7 +36,7 @@
   </div>
 </template>
 <script>
-import { tap, map, pluck } from "rxjs/operators";
+import { tap, map, startWith } from "rxjs/operators";
 import { renderer$ } from "../services/latestInspector$";
 import getPlatForm from "../utils.js";
 import { Subject } from 'rxjs';
@@ -49,17 +49,18 @@ export default {
     }
   },
   subscriptions() {
-    this.radio$ = new Subject();
-    this.radio$.pipe(tap((data) => {
-      const select = data.data;
-      this.change(select.query, select.renderer);
-    })).subscribe();
     return {
       threes: renderer$.pipe(
-        map(frame => frame.data)
+        map(frame => frame.data),
+        startWith([]),
       ),
-      watchCheckedRenderer: this.$watchAsObservable("checkedRenderer").pipe(
-        pluck("newValue")
+      watchCheckedRdio: this.$watchAsObservable("checkedRenderer").pipe(
+        tap(({oldValue ="", newValue = ""}) => {
+          this.changeRenderer(oldValue, "IDLE");
+          this.changeRenderer(newValue, "INJECTED...");
+          renderer$.select(newValue);
+          inspecting = newValue;
+        })
       )
     };
   },
@@ -69,11 +70,19 @@ export default {
     }
   },
   methods: {
-    change(query, renderer) {
-      renderer$.select(query);
-      this.checkedRenderer = query;
-      inspecting = query;
-      renderer.status = "INJECTED...";
+    getIndexs(query) {
+      return query.split(".");
+    },
+    changeRenderer(query = "", status = "") {
+      const indexs = this.getIndexs(query);
+      if (indexs.length < 2) {
+        return;
+      }
+      const threeIndex = indexs[0];
+      const rendererIndex = indexs[1];
+      const three = this.threes[threeIndex];
+      const renderer = three.rendererList[rendererIndex];
+      renderer.status = status;
     }
   }
 };
@@ -89,7 +98,6 @@ $color: #56aa7a;
 }
 .renderers-panel {
   height: 100%;
-  padding-left: 10px;
   border-right: 1px solid #dadada;
   box-sizing: border-box;
   overflow-x: scroll;
@@ -108,6 +116,7 @@ $color: #56aa7a;
   color: $color;
 }
 .three-item {
+  padding-left: 10px;
   font-size: 12px;
   font-weight: 200;
   color: $color;

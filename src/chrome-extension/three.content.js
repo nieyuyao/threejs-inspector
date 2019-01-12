@@ -205,6 +205,7 @@ const globalHook = {
         }
         threePanelId = recipient.to;
         const sign = `$${threeIndex}$${rendererIndex}`;
+        this.inspecting = sign;
         if (this.inspector && this.inspecting !== sign) {
           this.inspectors[this.inspecting].status = "IDLE";
         }
@@ -217,9 +218,11 @@ const globalHook = {
           .then(Inspector => {
             rendererInstance.THREE = threeInstance.THREE;
             rendererInstance.inspector = sign;
-            this.inspecting = sign;
             this.inspectors[sign] = new Inspector(rendererInstance, emit);
             rendererInstance.status = "INJECTED";
+            if (window.$three) {
+              window.$three = null;
+            }
             respond("INSPECTOR", sign, recipient);
           })
           .catch(error => {

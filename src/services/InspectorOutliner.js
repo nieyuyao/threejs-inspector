@@ -190,6 +190,15 @@ export default class InspectorOutliner {
    * @param {node} node Three.js中的物体
    */
   serialize(node) {
+    if (!node) {
+      return {
+        id: -1,
+        name: "",
+        type: "",
+        collapsed: false,
+        children: []
+      };
+    }
     if (typeof node[outliner] === "undefined") {
       const type = this.inspector.typeDetection.detectType(node);
       if (type === "") {

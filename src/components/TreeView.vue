@@ -1,5 +1,6 @@
 <template>
   <div>
+    <slot></slot>
     <div 
       class="treeview"
       :class="platformClass" 
@@ -35,8 +36,7 @@
       </div>
     </div>
     <!-- 辅助功能 -->
-    <div class="divide"></div>
-    <div class="aider">
+    <div class="aider" v-if="rows && rows.length">
       <!-- 1. 帧率显示 -->
       <StatsSwitch class="stats-switch-aider" @aider="aider"></StatsSwitch>
       <!-- 2. 轨道控制 -->
