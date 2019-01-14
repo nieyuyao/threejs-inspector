@@ -133,16 +133,16 @@ export default {
   border: none;
   box-sizing: border-box;
   &.type-string {
-    color: #da8b37;
+    color: #b42e24;
   }
   &.type-number {
-    color: #3674e0;
+    color: #1027a3;
   }
 }
 .detailvalue-label {
   position: relative;
   padding-left: 12px;
-  color: #3674e0;
+  color: #1027a3;
 }
 .detailvalue-label input {
   position: absolute;
@@ -152,10 +152,10 @@ export default {
 .field-other-types {
   &.type-function {
     font-style: italic;
-    color: #333;
+    color: #9d278c;
   }
   &.type-object {
-    color: #333;
+    color: #313941;
   }
 }
 </style>

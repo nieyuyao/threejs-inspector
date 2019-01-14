@@ -50,7 +50,7 @@ export default {
 
 <style lang="scss">
 .detailview {
-  padding: 4px 4px 4px 2px;
+  padding: 8px 4px 8px 2px;
   &.platform-mac {
     font-family: Menlo, monospace;
   }
@@ -62,7 +62,8 @@ export default {
   margin: 0 0 6px 0;
   font-size: 12px;
   font-weight: 600;
-  color: #7d60c3;
+  // color: #7d60c3;
+  color: #313941;
 }
 .detailview-item {
   display: flex;
@@ -73,7 +74,8 @@ export default {
 .detailview-label {
   display: inline-block;
   padding-right: 4px;
-  color: #7d60c3;
+  // color: #7d60c3;
+  color: #a86db2;
   font-size: 0;
   span {
     font-size: 12px;
