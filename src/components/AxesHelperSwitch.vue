@@ -7,7 +7,7 @@
     </div>
     <div class="size-input-wrapper">
       size: 
-      <input type="number" v-model="size" min="0">
+      <input type="number" v-model.number.lazy="size" min="0">
     </div>
   </div>
 </template>
@@ -18,7 +18,8 @@ export default {
   name: "AxesHelperSwitch",
   data() {
     return {
-      size: 2000
+      size: 2000,
+      checked: false
     }
   },
   computed: {
@@ -26,18 +27,21 @@ export default {
       return "platform-" + getPlatForm();
     }
   },
+  watch: {
+    size(newVal, oldVal) {
+      if (oldVal !== newVal && this.checked) {
+        this.$emit("aider", this.$options.name, true, 0, {
+          size: newVal
+        });
+      }
+    }
+  },
   methods: {
     toggle(checked) {
-      this.$emit("aider", this.$options.name, checked);
-    },
-    onFocus() {
-
-    },
-    onBlur() {
-
-    },
-    keydown() {
-
+      this.checked = checked;
+      this.$emit("aider", this.$options.name, checked, 0, {
+        size: this.size
+      });
     }
   }
 };

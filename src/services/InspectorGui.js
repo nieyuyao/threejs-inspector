@@ -196,6 +196,7 @@ export default class InspectorGui {
   /*eslint-disable class-methods-use-this */
   initOverlay(inspector) {
     overlay.THREE = inspector.instance.THREE;
+    const THREE = overlay.THREE;
     overlay.div = document.createElement("div");
     overlay.div.id = "three-inspector-overlay";
     const style = document.createElement("style");
@@ -224,7 +225,7 @@ export default class InspectorGui {
     canvas.width = width;
     canvas.height = height;
     overlay.div.appendChild(canvas);
-    overlay.scene = new overlay.THREE.Scene();
+    overlay.scene = new THREE.Scene();
     const renderOptions = {
       canvas,
       pixelRatio: window.devicePixelRatio,
@@ -235,9 +236,9 @@ export default class InspectorGui {
       maxLights: 8,
       name: "three-inspector-renderer"
     };
-    overlay.renderer = new overlay.THREE.WebGLRenderer(renderOptions);
+    overlay.renderer = new THREE.WebGLRenderer(renderOptions);
     //create three camera and set position of camera
-    const camera = new overlay.THREE.OrthographicCamera(
+    const camera = new THREE.OrthographicCamera(
       -width / 2,
       width / 2,
       height / 2,
@@ -246,7 +247,9 @@ export default class InspectorGui {
       1000
     );
     camera.position.set(0, 0, 500);
-    camera.lookAt(0, 0, 0);
+    // camera.lookAt(0, 0, 0);
+    //兼容较低版本three.js，looAt方法应传入向量
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
     overlay.camera = camera;
     //create three group
     overlay.container = new overlay.THREE.Group();
@@ -299,28 +302,29 @@ export default class InspectorGui {
    * @param {Stirng} name 辅助功能的名称
    * @param {Boolean} status 是否开启
    * @param {Number} index 功能模式索引
+   * @param {Object} extra 额外参数
    */
-  aider(name, status = false, index = 0) {
+  aider(name, status = false, index = 0, extra = {}) {
     const _name = `${name}_${status}`;
     switch (_name) {
       case "StatsSwitch_true":
-        this.setStatsPanel(index);
+        this.setStatsPanel(index, extra);
         this.openStats();
         break;
       case "StatsSwitch_false":
         this.closeStats();
         break;
       case "OrbitControlSwitch_true":
-        this.openOrbitControl();
+        this.openOrbitControl(extra);
         break;
       case "OrbitControlSwitch_false":
         this.closeOrbitControl();
         break;
       case "AxesHelperSwitch_true":
-        this.openAxesHelper();
+        this.openAxesHelper(extra);
         break;
       case "AxesHelperSwitch_false":
-        this.openAxesHelper();
+        this.closeAxesHelper();
         break;
     }
   }
@@ -403,7 +407,7 @@ export default class InspectorGui {
     }
   }
   //开启坐标轴显示
-  openAxesHelper() {
+  openAxesHelper(extra) {
     const { THREE } = this.inspector.instance;
     if (!THREE.AxesHelper) {
       /* eslint-disable */
@@ -428,14 +432,14 @@ export default class InspectorGui {
         LineSegments.call(this, geometry, material);
       }
       THREE.AxesHelper.prototype = Object.create(LineSegments.prototype);
-      THREE.AxesHelper.prototype.constructor = AxesHelper;
+      THREE.AxesHelper.prototype.constructor = THREE.AxesHelper;
       this.openAxesHelper();
       /* eslint-enable */
     } else {
       const { axes, inspector } = this;
       const name = "$axesHelper";
       if (!axes.ele) {
-        const axesHelper = new THREE.AxesHelper(20000);
+        const axesHelper = new THREE.AxesHelper(extra.size);
         axesHelper.name = name;
         axes.ele = axesHelper;
         axes.removeCallbackAfter = inspector.registerHook(
@@ -450,11 +454,17 @@ export default class InspectorGui {
         axes.removeCallbackAfter = inspector.registerHook(
           "afterRender",
           container => {
-            if (container.getObjectByName) {
-              const axesHelper =
-                container.getObjectByName && container.getObjectByName(name);
-              if (axesHelper) {
-                axesHelper.visible = false;
+            if (typeof container.getObjectByName === "function") {
+              const axesHelper = container.getObjectByName(name);
+              if (axesHelper.size === extra.size) {
+                axesHelper.size = extra.size;
+              }
+              if (
+                axesHelper &&
+                !axesHelper.visible &&
+                axes.removeCallbackAfter
+              ) {
+                axesHelper.visible = true;
               }
             }
           }
@@ -467,9 +477,9 @@ export default class InspectorGui {
     const { axes } = this;
     if (axes.ele) {
       if (axes.removeCallbackAfter) {
-        axes.ele.visible = false;
         axes.removeCallbackAfter();
         axes.removeCallbackAfter = null;
+        axes.ele.visible = false;
       }
     }
   }

@@ -56,6 +56,14 @@ const globalHook = {
       }.toString()
     );
   },
+  //如果devtools进入后台
+  reportDisconnnect() {
+    this.executeInContext(
+      function() {
+        __THREE_INSPECTOR_GLOBAL_HOOK__.reportDisconnnect();
+      }.toString()
+    );
+  },
   disable() {
     this.executeInContext(
       function() {
@@ -197,6 +205,7 @@ const globalHook = {
         }
         threePanelId = recipient.to;
         const sign = `$${threeIndex}$${rendererIndex}`;
+        this.inspecting = sign;
         if (this.inspector && this.inspecting !== sign) {
           this.inspectors[this.inspecting].status = "IDLE";
         }
@@ -209,9 +218,11 @@ const globalHook = {
           .then(Inspector => {
             rendererInstance.THREE = threeInstance.THREE;
             rendererInstance.inspector = sign;
-            this.inspecting = sign;
             this.inspectors[sign] = new Inspector(rendererInstance, emit);
             rendererInstance.status = "INJECTED";
+            if (window.$three) {
+              window.$three = null;
+            }
             respond("INSPECTOR", sign, recipient);
           })
           .catch(error => {
@@ -246,6 +257,9 @@ const globalHook = {
         if (this.inspecting) {
           this.inspectors[this.inspecting].enable();
         }
+      },
+      reportDisconnnect() {
+        emit("DISCONNECT");
       },
       disable() {
         Object.values(this.inspectors).forEach(inspector => {
@@ -321,4 +335,8 @@ window.onload = function() {
       globalHook.reportDetection();
     }
   }, 1000);
+};
+//监听页面卸载事件
+window.onbeforeunload = function() {
+  globalHook.reportDisconnnect();
 };

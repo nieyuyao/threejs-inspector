@@ -123,10 +123,12 @@ export default class InspectorOutliner {
   highlight(id) {
     const node = this.nodes[id];
     if (node) {
-      const isLight = /Light$/.test(node.constructor.name);
-      isLight
-        ? (InspectorHighlight.node = false)
-        : (InspectorHighlight.node = node);
+      const isLight = /Light$/.test(
+        node.constructor ? node.constructor.name : ""
+      );
+      !isLight
+        ? (InspectorHighlight.node = node)
+        : (InspectorHighlight.node = false);
     } else {
       InspectorHighlight.node = false;
     }
@@ -188,6 +190,15 @@ export default class InspectorOutliner {
    * @param {node} node Three.js中的物体
    */
   serialize(node) {
+    if (!node) {
+      return {
+        id: -1,
+        name: "",
+        type: "",
+        collapsed: false,
+        children: []
+      };
+    }
     if (typeof node[outliner] === "undefined") {
       const type = this.inspector.typeDetection.detectType(node);
       if (type === "") {

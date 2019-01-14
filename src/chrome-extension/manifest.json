@@ -3,12 +3,17 @@
   "name": "three.js inspector",
   "description": "Developer Tools for inspecting and debugging games written with Three.js",
   "version": "1.0",
-  "page_action": {
+  "icons": {
+    "32": "icons/icon-32.png",
+    "64": "icons/icon-64.png"
+  },
+  "browser_action": {
     "default_icon": {
       "32": "icons/icon-32-gray.png",
       "64": "icons/icon-64-gray.png"
     },
-    "default_title": "ThreeJS Inspector"
+    "default_title": "ThreeJS Inspector",
+    "default_popup": "popups/three.nofound.html"
   },
   "devtools_page": "three.devtools.html",
   "content_scripts": [

@@ -1,4 +1,6 @@
 /* eslint-disable  no-console, no-use-before-define, no-var */
+import { isSupportPassive } from "../utils.js";
+const passiveSupported = isSupportPassive();
 const OrbitControlsTool = function(THREE) {
   function OrbitControls(object, domElement) {
     this.object = object;
@@ -608,8 +610,10 @@ const OrbitControlsTool = function(THREE) {
 
     function onMouseDown(event) {
       if (scope.enabled === false) return;
-
-      event.preventDefault();
+      if (!passiveSupported) {
+        event.preventDefault();
+      }
+      // event.preventDefault();
 
       switch (event.button) {
         case scope.mouseButtons.LEFT:
@@ -658,8 +662,9 @@ const OrbitControlsTool = function(THREE) {
 
     function onMouseMove(event) {
       if (scope.enabled === false) return;
-
-      event.preventDefault();
+      if (!passiveSupported) {
+        event.preventDefault();
+      }
 
       switch (state) {
         case STATE.ROTATE:
@@ -703,10 +708,12 @@ const OrbitControlsTool = function(THREE) {
         scope.enabled === false ||
         scope.enableZoom === false ||
         (state !== STATE.NONE && state !== STATE.ROTATE)
-      )
+      ) {
         return;
-
-      event.preventDefault();
+      }
+      if (!passiveSupported) {
+        event.preventDefault();
+      }
       event.stopPropagation();
 
       scope.dispatchEvent(startEvent);
@@ -729,8 +736,10 @@ const OrbitControlsTool = function(THREE) {
 
     function onTouchStart(event) {
       if (scope.enabled === false) return;
-
-      event.preventDefault();
+      if (!passiveSupported) {
+        event.preventDefault();
+      }
+      // event.preventDefault();
 
       switch (event.touches.length) {
         case 1: // one-fingered touch: rotate
@@ -762,8 +771,9 @@ const OrbitControlsTool = function(THREE) {
 
     function onTouchMove(event) {
       if (scope.enabled === false) return;
-
-      event.preventDefault();
+      if (!passiveSupported) {
+        event.preventDefault();
+      }
       event.stopPropagation();
 
       switch (event.touches.length) {

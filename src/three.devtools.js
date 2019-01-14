@@ -32,7 +32,7 @@ const threeDetected$ = connection.on("DETECTED").pipe(
 );
 const panel$ = threeDetected$.pipe(
   take(1),
-  map(() => new Panel("Three", "icon.png", "three.panel.html")),
+  map(() => new Panel("Three", "", "three.panel.html")),
   publishReplay(1),
   refCount(1)
 );

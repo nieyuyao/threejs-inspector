@@ -88,5 +88,9 @@
 	THREE.$$RendererList = [];
 	THREE.$$RendererList.push(renderer);
 	renderer.name = 'RenderDemo';
+
+	let renderer2 = new THREE.WebGLRenderer();
+	renderer2.name = "RenderDemo2";
+	THREE.$$RendererList.push(renderer2);
 </script>
 </html>
