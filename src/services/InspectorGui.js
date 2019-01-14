@@ -37,6 +37,10 @@ export default class InspectorGui {
       ele: null,
       removeCallbackAfter: null
     };
+    this.penetrate = {
+      ele: null,
+      listener: null
+    };
     this.inspector = inspector;
     //初始化调试需要的three场景
     if (!overlay.THREE) {
@@ -326,6 +330,14 @@ export default class InspectorGui {
       case "AxesHelperSwitch_false":
         this.closeAxesHelper();
         break;
+      case "Target_true": {
+        this.openPenetrate();
+        break;
+      }
+      case "Target_false": {
+        this.openPenetrate();
+        break;
+      }
     }
   }
   //开启帧率显示
@@ -482,5 +494,21 @@ export default class InspectorGui {
         axes.ele.visible = false;
       }
     }
+  }
+  //开启悬浮高亮显示
+  openPenetrate() {
+    this.penetrate.listener = event => {
+      const x = event.clientX;
+      const y = event.clientY;
+      console.error(x, y);
+    };
+    overlay.div.addEventListener("mousemove", this.penetrate.listener);
+    overlay.div.addEventListener("touchmove", this.penetrate.listener);
+  }
+  //关闭悬浮高亮显示
+  closePenetrate() {
+    overlay.div.removeEventListener("mousemove", this.penetrate.listener);
+    overlay.div.removeEventListener("touchmove", this.penetrate.listener);
+    this.penetrate.listener = null;
   }
 }

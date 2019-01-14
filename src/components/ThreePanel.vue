@@ -3,11 +3,7 @@
     :class="{'dark-mode': darkMode, 'platform-mac': platformClass === 'platform-mac', 'platform-windows': platformClass === 'platform-windows'}"
     class="three-panel">
     <div class="three-panel-body">
-      <Threes class="renderer-panel-body" v-if="messageVisible">
-        <div class="toolbar">
-          <button @click="reload">Reconnect</button>
-        </div>
-      </Threes>
+      <Threes class="renderer-panel-body" v-if="messageVisible"></Threes>
       <SplitView 
         v-if="injected" 
         class="renderer-inject-body">
@@ -97,9 +93,6 @@ export default {
         .subscribe(inspector => {
           inspector.selectMode(value);
         });
-    },
-    reload() {
-      window.location.reload();
     },
     detect() {
       connection.to("content_scripts").send("DETECT");

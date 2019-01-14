@@ -1,6 +1,7 @@
 <template>
   <div>
-    <span 
+    <!-- 数字或者字符串类型 -->
+    <div 
       v-if="field.type === 'number' || field.type === 'string'" 
       :class="['detailvalue-input', feildClass(field.type)]"
       contenteditable="true" 
@@ -8,7 +9,8 @@
       @blur="onBlur"
       @keydown="keydown"
       v-html="fieldValue">
-    </span>
+    </div>
+    <!-- 布尔值类型 -->
     <label
       v-else-if="field.type === 'boolean'"
       class="detailvalue-label">
@@ -19,6 +21,7 @@
       >
       {{ field.value }}
     </label>
+    <!-- 其他类型 -->
     <span v-else :class="['field-other-types', feildClass(field.type)]">{{ field.value }}</span>
   </div>
 </template>
@@ -127,6 +130,9 @@ export default {
 </script>
 
 <style lang="scss">
+.colon {
+  color: #313941;
+}
 .detailvalue-input {
   display: block;
   min-width: 50px;
@@ -152,7 +158,8 @@ export default {
 .field-other-types {
   &.type-function {
     font-style: italic;
-    color: #9d278c;
+    // color: #9d278c;
+    color: #1027a3;
   }
   &.type-object {
     color: #313941;

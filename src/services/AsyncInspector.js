@@ -104,7 +104,6 @@ export default class AsyncInspector {
       throw err;
     });
   }
-
   captureRendererList() {
     return this.call("captureRendererList");
   }

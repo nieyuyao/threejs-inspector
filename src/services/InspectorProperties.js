@@ -61,20 +61,23 @@ export default class InspectorProperties {
         break;
       }
       case "function": {
-        property.value = "function";
+        property.value = "f()";
         property.collapsed = false;
         break;
       }
-      case "string":
+      case "string": {
+        property.value = `"${value}"`;
+        break;
+      }
       case "number":
       case "boolean": {
-        property.value = (value === "" ? "\"\"" : value);
+        property.value = value;
         property.collapsed = false;
         break;
       }
       case "object": {
         if (value === null) {
-          property.value = value;
+          property.value = "null";
           property.collapsed = false;
         } else if (Array.isArray(value)) {
           property.value = `Array[${value.length}]`;

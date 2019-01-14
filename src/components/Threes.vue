@@ -1,6 +1,9 @@
 <template>
   <div class="renderers-panel" :class="platformClass">
-    <slot></slot>
+    <div class="top">
+      <Target class="target"></Target>
+      <button @click="reload">Reconnect</button>
+    </div>
     <div class="title">Inspector THREE List</div>
     <div class="three-item" v-for="three in threes" :key="three.id">
       <div class="three-detail">
@@ -20,7 +23,6 @@
             v-model="checkedRenderer"
             hidden
           >
-          <!-- @change="change(`${three.id}.${k}`, renderer)" -->
           <label :for="'radio-' + k" class="radio-label"></label>
           <span class="renderer-name">
             Renderer
@@ -40,9 +42,13 @@ import { tap, map, startWith } from "rxjs/operators";
 import { renderer$ } from "../services/latestInspector$";
 import getPlatForm from "../utils.js";
 import { Subject } from 'rxjs';
+import Target from "./Target.vue";
 let inspecting = "";
 export default {
   name: "Threes",
+  components: {
+    Target
+  },
   data() {
     return {
       checkedRenderer: inspecting
@@ -83,7 +89,10 @@ export default {
       const three = this.threes[threeIndex];
       const renderer = three.rendererList[rendererIndex];
       renderer.status = status;
-    }
+    },
+    reload() {
+      window.location.reload();
+    },
   }
 };
 </script>
@@ -109,6 +118,21 @@ $color: #56aa7a;
     font-family: Consolas, "Lucida Console", "Courier New", monospace;
   }
 }
+.top {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  padding: 3px 5px;
+  border-bottom: 1px solid #dadada;
+  & .target {
+    margin-right: 8px;
+  }
+  & button {
+    font-family: Menlo, monospace;
+    color: #64b587;
+  }
+}
+
 .title {
   margin: 10px 0;
   font-size: 12px;

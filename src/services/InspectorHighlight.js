@@ -35,7 +35,6 @@ export default class InspectorHighlight {
     this.gui.container.add(this.point);
     inspector.registerHook("afterRender", this.update.bind(this));
   }
-
   update(container, camera) {
     const { cube, point, gui, inspector } = this;
     const node = InspectorHighlight.node;

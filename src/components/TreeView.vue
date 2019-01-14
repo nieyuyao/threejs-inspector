@@ -164,7 +164,7 @@ export default {
   position: relative;
   color: #56aa7a;
   // color: #ffab15;
-  padding: 1px;
+  padding: 4px;
   display: flex;
   user-select: none;
   .dark-mode & {
