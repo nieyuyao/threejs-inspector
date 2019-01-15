@@ -279,7 +279,6 @@ export default class InspectorGui {
   }
   //计算canvas的位置和大小
   calculateOffset(canvas, iframe) {
-    console.error('>>> calculateOffset');
     const bounds = canvas.getBoundingClientRect();
     const { offset, size, renderer, container } = this;
     offset.canvas.x = bounds.left;
@@ -509,7 +508,7 @@ export default class InspectorGui {
     const mouse = { x: -10000, y: -10000 };
     const { left, top } = domElement.getBoundingClientRect();
     const { width, height } = renderer.getSize();
-    penetrate.mouseMoveHandler = debounce(500, event => {
+    penetrate.mouseMoveHandler = debounce(200, event => {
       mouse.x = ((event.clientX - left) / width) * 2 - 1;
       mouse.y = 1 - ((event.clientY - top) / height) * 2;
     });
@@ -536,7 +535,10 @@ export default class InspectorGui {
     const { penetrate } = this;
     window.removeEventListener("mousemove", penetrate.mouseMoveHandler);
     penetrate.mouseMoveHandler = null;
-    penetrate.removeCallbackAfter = null;
+    if (penetrate.removeCallbackAfter) {
+      penetrate.removeCallbackAfter();
+      penetrate.removeCallbackAfter = null;
+    }
     InspectorHighlight.node = false;
   }
 }
