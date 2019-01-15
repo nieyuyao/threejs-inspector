@@ -7,7 +7,7 @@
 
 <script>
 import latestInspector$ from "../services/latestInspector$";
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 export default {
 	name: "Target",
 	data() {
@@ -18,6 +18,7 @@ export default {
 	subscriptions() {
 		return {
 			toggle: latestInspector$.pipe(
+				filter(inspector => inspector !== null),
 				map(inspector => () => {
 					this.choosen = !this.choosen;
 					inspector.aider(this.$options.name, this.choosen);

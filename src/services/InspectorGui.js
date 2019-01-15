@@ -9,9 +9,10 @@ import {
   debounceTime,
   combineLatest
 } from "rxjs/operators";
-import { parentElements, hideDom, showDom } from "../utils";
+import { parentElements, hideDom, showDom, debounce } from "../utils";
 import Stats from "stats.js";
 import OrbitControlsTool from "../aiders/OrbitControls";
+import InspectorHighlight from "./InspectorHighlight";
 export const overlay = {
   div: null,
   renderer: null,
@@ -39,7 +40,8 @@ export default class InspectorGui {
     };
     this.penetrate = {
       ele: null,
-      listener: null
+      mouseMoveHandler: null,
+      removeCallbackAfter: null
     };
     this.inspector = inspector;
     //初始化调试需要的three场景
@@ -48,10 +50,12 @@ export default class InspectorGui {
     }
     this.container = overlay.container;
     this.camera = overlay.camera;
+    //偏移量
     this.offset = {
       canvas: { x: 0, y: 0 },
       iframe: { x: 0, y: 0 }
     };
+    //尺寸
     this.size = {
       canvas: { width: 800, y: 600 },
       renderer: { width: 800, y: 600 }
@@ -130,9 +134,11 @@ export default class InspectorGui {
     const handleResize$ = fromEvent(window, "resize").pipe(
       debounceTime(100),
       tap(() => {
-        overlay.renderer.setSize(window.innerWidth, window.innerHeight);
-        overlay.renderer.domElement.style.width = window.innerWidth + "px";
-        overlay.renderer.domElement.style.height = window.innerHeight + "px";
+        const { renderer } = overlay;
+        const { innerWidth, innerHeight } = window;
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.domElement.style.width = innerWidth + "px";
+        renderer.domElement.style.height = innerHeight + "px";
       }),
       switchMap(() =>
         iframe$.pipe(
@@ -273,24 +279,26 @@ export default class InspectorGui {
   }
   //计算canvas的位置和大小
   calculateOffset(canvas, iframe) {
+    console.error('>>> calculateOffset');
     const bounds = canvas.getBoundingClientRect();
-    this.offset.canvas.x = bounds.left;
-    this.offset.canvas.y = bounds.top;
-    this.size.canvas.width = bounds.width;
-    this.size.canvas.height = bounds.height;
-    this.size.renderer.width = this.renderer.width;
-    this.size.renderer.height = this.renderer.height;
+    const { offset, size, renderer, container } = this;
+    offset.canvas.x = bounds.left;
+    offset.canvas.y = bounds.top;
+    size.canvas.width = bounds.width;
+    size.canvas.height = bounds.height;
+    size.renderer.width = (renderer && renderer.width) || 0;
+    size.renderer.height = (renderer && renderer.height) || 0;
 
     if (iframe) {
       const iframeBounds = iframe.getBoundingClientRect();
-      this.offset.iframe.x = iframeBounds.left;
-      this.offset.iframe.y = iframeBounds.top;
+      offset.iframe.x = iframeBounds.left;
+      offset.iframe.y = iframeBounds.top;
     } else {
-      this.offset.iframe.x = 0;
-      this.offset.iframe.y = 0;
+      offset.iframe.x = 0;
+      offset.iframe.y = 0;
     }
-    this.container.position.x = this.offset.iframe.x + this.offset.canvas.x;
-    this.container.position.y = this.offset.iframe.y + this.offset.canvas.y;
+    container.position.x = offset.iframe.x + offset.canvas.x;
+    container.position.y = offset.iframe.y + offset.canvas.y;
   }
   //更新相机
   updateCamera() {
@@ -330,14 +338,12 @@ export default class InspectorGui {
       case "AxesHelperSwitch_false":
         this.closeAxesHelper();
         break;
-      case "Target_true": {
+      case "Target_true":
         this.openPenetrate();
         break;
-      }
-      case "Target_false": {
-        this.openPenetrate();
+      case "Target_false":
+        this.closePenetrate();
         break;
-      }
     }
   }
   //开启帧率显示
@@ -497,18 +503,40 @@ export default class InspectorGui {
   }
   //开启悬浮高亮显示
   openPenetrate() {
-    this.penetrate.listener = event => {
-      const x = event.clientX;
-      const y = event.clientY;
-      console.error(x, y);
-    };
-    overlay.div.addEventListener("mousemove", this.penetrate.listener);
-    overlay.div.addEventListener("touchmove", this.penetrate.listener);
+    const { penetrate, inspector } = this;
+    const { instance: renderer } = inspector;
+    const { THREE, domElement } = renderer;
+    const mouse = { x: -10000, y: -10000 };
+    const { left, top } = domElement.getBoundingClientRect();
+    const { width, height } = renderer.getSize();
+    penetrate.mouseMoveHandler = debounce(500, event => {
+      mouse.x = ((event.clientX - left) / width) * 2 - 1;
+      mouse.y = 1 - ((event.clientY - top) / height) * 2;
+    });
+    window.addEventListener("mousemove", penetrate.mouseMoveHandler);
+    let raycaster = null;
+    if (!penetrate.ele) {
+      raycaster = penetrate.ele = new THREE.Raycaster();
+    } else {
+      raycaster = penetrate.ele;
+    }
+    penetrate.removeCallbackAfter = inspector.registerHook(
+      "afterRender",
+      (scene, camera) => {
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(scene.children);
+        if (intersects[0]) {
+          InspectorHighlight.node = intersects[0].object;
+        }
+      }
+    );
   }
   //关闭悬浮高亮显示
   closePenetrate() {
-    overlay.div.removeEventListener("mousemove", this.penetrate.listener);
-    overlay.div.removeEventListener("touchmove", this.penetrate.listener);
-    this.penetrate.listener = null;
+    const { penetrate } = this;
+    window.removeEventListener("mousemove", penetrate.mouseMoveHandler);
+    penetrate.mouseMoveHandler = null;
+    penetrate.removeCallbackAfter = null;
+    InspectorHighlight.node = false;
   }
 }

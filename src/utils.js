@@ -49,3 +49,13 @@ export function isSupportPassive() {
   }
   return passiveSupported;
 }
+export function debounce(bounceTime = 100, fn) {
+  let start = 0;
+  return function(...args) {
+    const end = +new Date();
+    if (end - start >= bounceTime) {
+      fn(...args);
+      start = end;
+    }
+  };
+}
