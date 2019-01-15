@@ -22,7 +22,7 @@ npm run build
 
 <p align="center"><img src="https://s.momocdn.com/w/u/others/2019/01/15/1547553288258-three-devtool-install-1.png" alt="screenshot"></p>
 
-<p align="center"><img src="https://s.momocdn.com/w/u/others/2019/01/15/1547553288258-three-devtool-install-2.png" alt="screenshot"></p>
+<p align="center"><img src="https://s.momocdn.com/w/u/others/2019/01/15/1547553896475-three-devtool-install-2.png" alt="screenshot"></p>
 
 ## Note
 
