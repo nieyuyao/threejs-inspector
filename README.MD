@@ -1,4 +1,4 @@
-**A chrome inspector for three.js**
+## A chrome inspector for three.js
 
 <p align="center"><img src="https://s.momocdn.com/w/u/others/2019/01/15/1547552791926-three-devtool-screen-shot.png" alt="screenshot"></p>
 
