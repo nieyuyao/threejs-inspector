@@ -6,6 +6,7 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const FriendlyErrorsPlugin = require("friendly-errors-webpack-plugin");
 const { VueLoaderPlugin } = require("vue-loader");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV =
@@ -78,7 +79,8 @@ const baseConfig = {
       }
     }),
     new VueLoaderPlugin(),
-    new CopyWebpackPlugin([{ context: "src/chrome-extension", from: "**/*" }])
+    new CopyWebpackPlugin([{ context: "src/chrome-extension", from: "**/*" }]),
+    new UglifyJsPlugin()
   ],
   performance: {
     hints: false
@@ -91,23 +93,4 @@ if (process.env.NODE_ENV === "development") {
     plugins: [new FriendlyErrorsPlugin()]
   });
 }
-// const isDevServer = process.argv.find(
-//   arg => arg.substr(-18) === "webpack-dev-server"
-// );
-// let webpackConfig = devConfig;
-// if (isDevServer) {
-//   webpackConfig = merge(devConfig, {
-//     entry: {
-//       example: "./test/example.js"
-//     },
-//     plugins: [
-//       new webpack.DefinePlugin({
-//         "process.env.DEV_SERVER": "true"
-//       })
-//     ],
-//     devServer: {
-//       // noInfo: false
-//     }
-//   });
-// }
 module.exports = devConfig;
