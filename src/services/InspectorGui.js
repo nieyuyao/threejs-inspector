@@ -523,7 +523,7 @@ export default class InspectorGui {
       "afterRender",
       (scene, camera) => {
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(scene.children);
+        const intersects = raycaster.intersectObject(scene, true);
         if (intersects[0]) {
           InspectorHighlight.node = intersects[0].object;
         }

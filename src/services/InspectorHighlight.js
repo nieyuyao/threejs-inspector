@@ -1,5 +1,5 @@
 import { overlay } from "./InspectorGui";
-
+import { threePolyFill } from "../utils";
 export default class InspectorHighlight {
   constructor(inspector) {
     this.gui = inspector.gui;
@@ -24,6 +24,9 @@ export default class InspectorHighlight {
       new THREE.BufferAttribute(vertices, 3)
     );
     pointGeometry.addAttribute("scale", new THREE.BufferAttribute(scales, 1));
+    if (!THREE.PointsMaterial) {
+      threePolyFill(THREE);
+    }
     const pointMaterial = new THREE.PointsMaterial({
       size: 5,
       color: 0x007eff,
@@ -34,6 +37,7 @@ export default class InspectorHighlight {
     this.point = point;
     this.gui.container.add(this.point);
     inspector.registerHook("afterRender", this.update.bind(this));
+    this.bound = inspector.instance.domElement.getBoundingClientRect();
   }
   update(container, camera) {
     const { cube, point, gui, inspector } = this;
@@ -44,22 +48,22 @@ export default class InspectorHighlight {
       const { geometry } = node;
       //
       const centerPos = node.position.clone(); //node位置
-      const rangePos = node.position.clone(); //node上边缘位置
+      // const rangePos = node.position.clone(); //node上边缘位置
       //
       const centerNdcPos = centerPos.project(camera); //node的ndc位置
       centerNdcPos.z = 0;
       if (geometry && geometry.computeBoundingSphere) {
-        geometry.computeBoundingSphere();
-        const maxScale = Math.max.apply(this, [
-          node.scale.x,
-          node.scale.y,
-          node.scale.z
-        ]);
-        const radius = geometry.boundingSphere.radius * maxScale;
-        const up = camera.up.clone();
-        rangePos.add(up.multiplyScalar(radius));
-        const rangeNdcPos = rangePos.project(camera);
-        rangeNdcPos.z = 0;
+        // geometry.computeBoundingSphere();
+        // const maxScale = Math.max.apply(this, [
+        //   node.scale.x,
+        //   node.scale.y,
+        //   node.scale.z
+        // ]);
+        // const radius = geometry.boundingSphere.radius * maxScale;
+        // const up = camera.up.clone();
+        // rangePos.add(up.multiplyScalar(radius));
+        // const rangeNdcPos = rangePos.project(camera);
+        // rangeNdcPos.z = 0;
         //
         let size;
         if (inspector.instance && inspector.instance.THREE) {
@@ -76,21 +80,27 @@ export default class InspectorHighlight {
         const ww = window.innerWidth;
         const wh = window.innerHeight;
         //
-        centerNdcPos.x = (((1 + centerNdcPos.x) * sw) / 2 - ww / 2) / (ww / 2);
-        centerNdcPos.y = (wh / 2 - ((1 - centerNdcPos.y) * sh) / 2) / (wh / 2);
+        const { x: bx = 0, y: by = 0 } = this.bound;
+        /**
+         *TODO:为什么bx与by要乘2???
+         */
+        centerNdcPos.x =
+          (((1 + centerNdcPos.x) * sw) / 2 - ww / 2 - 2 * bx) / (ww / 2);
+        centerNdcPos.y =
+          (wh / 2 - ((1 - centerNdcPos.y) * sh) / 2 - 2 * by) / (wh / 2);
         //
-        rangeNdcPos.x = (((1 + rangeNdcPos.x) * sw) / 2 - ww / 2) / (ww / 2);
-        rangeNdcPos.y = (wh / 2 - ((1 - rangeNdcPos.y) * sh) / 2) / (wh / 2);
+        // rangeNdcPos.x = (((1 + rangeNdcPos.x) * sw) / 2 - ww / 2) / (ww / 2);
+        // rangeNdcPos.y = (wh / 2 - ((1 - rangeNdcPos.y) * sh) / 2) / (wh / 2);
         //
-        const rangeBoxPos = rangeNdcPos.unproject(gui.camera);
+        // const rangeBoxPos = rangeNdcPos.unproject(gui.camera);
         const cubePos = centerNdcPos.unproject(gui.camera);
         cube.position.set(cubePos.x, cubePos.y, cubePos.z);
-        const distance = rangeBoxPos.distanceTo(cubePos);
-        cube.scale.set(
-          (2 * distance) / cube.width,
-          (2 * distance) / cube.height,
-          1
-        );
+        // const distance = rangeBoxPos.distanceTo(cubePos);
+        // cube.scale.set(
+        //   (2 * distance) / cube.width,
+        //   (2 * distance) / cube.height,
+        //   1
+        // );
         //更新宽高
         const cameraPos = gui.camera.position;
         point.position.set(
