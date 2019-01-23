@@ -109,21 +109,6 @@ export default class AsyncInspector {
   }
 
   call(method, ...args) {
-    if (!chrome.devtools) {
-      const dot = method.indexOf(".");
-      let value;
-      if (dot === -1) {
-        value = this.inspector[method] && this.inspector[method](...args);
-      } else {
-        const helper = this.inspector[method.substr(0, dot)];
-        const _method = method.substr(dot + 1);
-        value = helper && helper[_method](...args);
-      }
-      if (typeof value !== "undefined") {
-        value = JSON.parse(JSON.stringify(value));
-      }
-      return Promise.resolve(value);
-    }
     const code = `
       if (${this.path}) {
         ${this.path}.${method}(

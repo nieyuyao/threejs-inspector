@@ -61,7 +61,7 @@ export function debounce(bounceTime = 100, fn) {
 }
 
 export function threePolyFill(THREE) {
-  if (THREE) {
+  if (!THREE) {
     return;
   }
   (function(THREE) {

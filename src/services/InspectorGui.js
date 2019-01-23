@@ -283,7 +283,7 @@ export default class InspectorGui {
   //计算canvas的位置和大小
   calculateOffset(canvas, iframe) {
     const bounds = canvas.getBoundingClientRect();
-    const { offset, size, renderer, container } = this;
+    const { offset, size, renderer /*container*/ } = this;
     offset.canvas.x = bounds.left;
     offset.canvas.y = bounds.top;
     size.canvas.width = bounds.width;
@@ -299,8 +299,8 @@ export default class InspectorGui {
       offset.iframe.x = 0;
       offset.iframe.y = 0;
     }
-    container.position.x = offset.iframe.x + offset.canvas.x;
-    container.position.y = offset.iframe.y + offset.canvas.y;
+    // container.position.x = offset.iframe.x + offset.canvas.x;
+    // container.position.y = offset.iframe.y + offset.canvas.y;
   }
   //更新相机
   updateCamera() {
@@ -554,6 +554,10 @@ export default class InspectorGui {
   openCameraHelper() {
     const { cameraHelper, inspector } = this;
     const { THREE } = inspector.instance;
+    if (!THREE.CameraHelper) {
+      alert("Current version of Three.js is not support CameraHelper"); // eslint-disable-line no-alert
+      return;
+    }
     if (!cameraHelper.ele) {
       cameraHelper.removeCallbackAfter = inspector.registerHook(
         "afterRender",

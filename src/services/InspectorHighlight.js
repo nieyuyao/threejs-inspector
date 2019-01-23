@@ -40,7 +40,7 @@ export default class InspectorHighlight {
     this.bound = inspector.instance.domElement.getBoundingClientRect();
   }
   update(container, camera) {
-    const { cube, point, gui, inspector } = this;
+    const { cube, point, gui, inspector, bound } = this;
     const node = InspectorHighlight.node;
     if (node && node.parent) {
       cube.visible = true;
@@ -80,14 +80,10 @@ export default class InspectorHighlight {
         const ww = window.innerWidth;
         const wh = window.innerHeight;
         //
-        const { x: bx = 0, y: by = 0 } = this.bound;
-        /**
-         *TODO:为什么bx与by要乘2???
-         */
         centerNdcPos.x =
-          (((1 + centerNdcPos.x) * sw) / 2 - ww / 2 - 2 * bx) / (ww / 2);
+          (((1 + centerNdcPos.x) * sw) / 2 - ww / 2 - bound.x) / (ww / 2);
         centerNdcPos.y =
-          (wh / 2 - ((1 - centerNdcPos.y) * sh) / 2 - 2 * by) / (wh / 2);
+          (wh / 2 - ((1 - centerNdcPos.y) * sh) / 2 - bound.y) / (wh / 2);
         //
         // rangeNdcPos.x = (((1 + rangeNdcPos.x) * sw) / 2 - ww / 2) / (ww / 2);
         // rangeNdcPos.y = (wh / 2 - ((1 - rangeNdcPos.y) * sh) / 2) / (wh / 2);
