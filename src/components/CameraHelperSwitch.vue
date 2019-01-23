@@ -1,24 +1,19 @@
 <template>
-  <div class="axes-helper-component" :class="platformClass">
-    <div class="axes-helper-switch">
-      <input type="checkbox" id="axes-helper" @change="toggle($event.target.checked)" hidden>
-      <label for="axes-helper" class="axes-helper-label"></label>
-      <span class="axes-helper-name">Axes Helper</span>
+  <div class="camera-helper-helper-component" :class="platformClass">
+    <div class="camera-helper-helper-switch">
+      <input type="checkbox" id="camera-helper-helper" @change="toggle($event.target.checked)" hidden>
+      <label for="camera-helper-helper" class="camera-helper-helper-label"></label>
+      <span class="camera-helper-helper-name">Camera Helper</span>
     </div>
-    <!-- <div class="size-input-wrapper">
-      size: 
-      <input type="number" v-model.number.lazy="size" min="0">
-    </div> -->
   </div>
 </template>
 <script>
 import getPlatForm from "../utils.js";
 import connection from "../services/connection.js";
 export default {
-  name: "AxesHelperSwitch",
+  name: "CameraHelperSwitch",
   data() {
     return {
-      // size: 2000,
       checked: false
     }
   },
@@ -27,21 +22,10 @@ export default {
       return "platform-" + getPlatForm();
     }
   },
-  watch: {
-    // size(newVal, oldVal) {
-    //   if (oldVal !== newVal && this.checked) {
-    //     this.$emit("aider", this.$options.name, true, 0, {
-    //       size: newVal
-    //     });
-    //   }
-    // }
-  },
   methods: {
     toggle(checked) {
       this.checked = checked;
-      this.$emit("aider", this.$options.name, checked, 0, {
-        size: 2000
-      });
+      this.$emit("aider", this.$options.name, checked, 0);
     }
   }
 };
@@ -53,7 +37,7 @@ export default {
   background-color: #6e6e6e;
   background-clip: content-box;
 }
-.axes-helper-component {
+.camera-helper-helper-component {
   font-size: 12px;
   &.platform-mac {
     font-family: Menlo, monospace;
@@ -62,11 +46,11 @@ export default {
     font-family: Consolas, "Lucida Console", "Courier New", monospace;
   }
 }
-.axes-helper-switch {
+.camera-helper-helper-switch {
   display: flex;
   justify-content: left;
   align-items: center;
-  .axes-helper-label {
+  .camera-helper-helper-label {
     flex-shrink: 0;
     display: inline-block;
     margin-right: 6px;
@@ -79,10 +63,10 @@ export default {
       box-shadow: 0 0 4px #666;
     }
   }
-  .axes-helper-name {
+  .camera-helper-helper-name {
     color: #56aa7a;
   }
-  input[type="checkbox"]:checked + .axes-helper-label {
+  input[type="checkbox"]:checked + .camera-helper-helper-label {
     border: none;
     border-radius: 0;
     @include bgicon("../asset/checkbox-checked.png");
@@ -101,5 +85,3 @@ export default {
     }
   }
 </style>
-
-

@@ -43,6 +43,10 @@ export default class InspectorGui {
       mouseMoveHandler: null,
       removeCallbackAfter: null
     };
+    this.cameraHelper = {
+      ele: null,
+      removeCallbackAfter: null
+    };
     this.inspector = inspector;
     //初始化调试需要的three场景
     if (!overlay.THREE) {
@@ -113,7 +117,6 @@ export default class InspectorGui {
             tap(([event, iframe, renderer]) => {
               const mobSelectKey =
                 event.pointerType === "touch" && event.altKey;
-              //jQuery中对event增加了which属性 3代表鼠标右键
               if (event.which === 3 || mobSelectKey) {
                 this.calculateOffset(canvas, iframe);
                 const pixelRatio = renderer.getPixelRatio();
@@ -343,6 +346,12 @@ export default class InspectorGui {
       case "Target_false":
         this.closePenetrate();
         break;
+      case "CameraHelperSwitch_true":
+        this.openCameraHelper();
+        break;
+      case "CameraHelperSwitch_false":
+        this.closeCameraHelper();
+        break;
     }
   }
   //开启帧率显示
@@ -541,4 +550,39 @@ export default class InspectorGui {
     }
     InspectorHighlight.node = false;
   }
+  //开启相机辅助
+  openCameraHelper() {
+    const { cameraHelper, inspector } = this;
+    const { THREE } = inspector.instance;
+    if (!cameraHelper.ele) {
+      cameraHelper.removeCallbackAfter = inspector.registerHook(
+        "afterRender",
+        (container, camera) => {
+          if (!cameraHelper.ele) {
+            cameraHelper.ele = new THREE.CameraHelper(camera);
+            container.add(cameraHelper.ele);
+            cameraHelper.ele.visible = true;
+          }
+        }
+      );
+    } else {
+      cameraHelper.ele.visible = true;
+      cameraHelper.removeCallbackAfter = inspector.registerHook(
+        "afterRender",
+        () => {
+          //
+        }
+      );
+    }
+  }
+  //关闭相机辅助
+  closeCameraHelper() {
+    const { cameraHelper } = this;
+    if (cameraHelper.ele) {
+      cameraHelper.ele.visible = false;
+      cameraHelper.removeCallbackAfter();
+    }
+  }
+  //开启光源阴影辅助
+  //关闭光源阴影辅助
 }

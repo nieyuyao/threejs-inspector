@@ -43,6 +43,8 @@
       <OrbitControlSwitch class="orbit-switch-aider" @aider="aider"></OrbitControlSwitch>
       <!-- 3. 坐标轴 -->
       <AxesHelperSwitch class="axes-switch-aider" @aider="aider"></AxesHelperSwitch>
+      <!-- 4. 相机辅助 -->
+      <CameraHelperSwitch class="camera-helper-switch-aider" @aider="aider"></CameraHelperSwitch>
     </div>
   </div>
 </template>
@@ -53,13 +55,15 @@ import latestInspector$ from "../services/latestInspector$";
 import StatsSwitch from "./StatsSwitch.vue";
 import OrbitControlSwitch from "./OrbitControlSwitch.vue";
 import AxesHelperSwitch from "./AxesHelperSwitch.vue";
+import CameraHelperSwitch from './CameraHelperSwitch.vue';
 import getPlatForm from "../utils.js"
 export default {
   name: "TreeView",
   components: {
     StatsSwitch,
     OrbitControlSwitch,
-    AxesHelperSwitch
+    AxesHelperSwitch,
+    CameraHelperSwitch
   },
   subscriptions() {
     const inspector$ = latestInspector$.pipe(
