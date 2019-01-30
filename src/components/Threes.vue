@@ -58,7 +58,10 @@ export default {
     return {
       threes: renderer$.pipe(
         map(frame => frame.data),
-        startWith([]),
+        tap(data => {
+          this.changeRenderer(inspecting, "INJECTED...", data);
+        }),
+        startWith([])
       ),
       watchCheckedRdio: this.$watchAsObservable("checkedRenderer").pipe(
         tap(({oldValue ="", newValue = ""}) => {
@@ -75,18 +78,26 @@ export default {
       return "platform-" + getPlatForm();
     }
   },
+  watch: {
+    threes() {
+      this.changeRenderer(inspecting, "INJECTED...");
+    }
+  },
   methods: {
     getIndexs(query) {
       return query.split(".");
     },
-    changeRenderer(query = "", status = "") {
+    changeRenderer(query = "", status = "", threes) {
       const indexs = this.getIndexs(query);
       if (indexs.length < 2) {
         return;
       }
       const threeIndex = indexs[0];
       const rendererIndex = indexs[1];
-      const three = this.threes[threeIndex];
+      if (!threes) {
+        threes = this.threes;
+      }
+      const three = threes[threeIndex];
       const renderer = three.rendererList[rendererIndex];
       renderer.status = status;
     },

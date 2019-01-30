@@ -80,7 +80,21 @@ export default {
     }
   }
   .axes-helper-name {
+    position: relative;
     color: #56aa7a;
+    &:hover::after {
+      content: "开启坐标轴显示";
+      display: inline-block;
+      position: absolute;
+      left: 100%;
+      padding: 0 4px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      color: #fff;
+      background-color: #f59a1f;
+    }
   }
   input[type="checkbox"]:checked + .axes-helper-label {
     border: none;

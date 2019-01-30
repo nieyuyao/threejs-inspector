@@ -41,6 +41,7 @@ export default class InspectorGui {
     this.penetrate = {
       ele: null,
       mouseMoveHandler: null,
+      touchMoveHandler: null,
       removeCallbackAfter: null
     };
     this.cameraHelper = {
@@ -544,6 +545,7 @@ export default class InspectorGui {
     const { penetrate } = this;
     window.removeEventListener("mousemove", penetrate.mouseMoveHandler);
     penetrate.mouseMoveHandler = null;
+    penetrate.touchMoveHandler = null;
     if (penetrate.removeCallbackAfter) {
       penetrate.removeCallbackAfter();
       penetrate.removeCallbackAfter = null;

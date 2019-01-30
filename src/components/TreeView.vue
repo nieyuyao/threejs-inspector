@@ -241,8 +241,20 @@ export default {
   outline: none;
 
   .treeview-item-selected {
+    position: relative;
     background: #3879d9;
     color: white;
+    .treeview-title {
+      position: relative;
+      &::after {
+        content: "$three";
+        display: inline-block;
+        position: absolute;
+        left: 100%;
+        margin-left: 10px;
+        font-style: italic;
+      }
+    }
     .dark-mode & {
       background: #c58532;
       color: #333;
