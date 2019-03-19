@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* global crypto */
-const debug = true;
+const debug = false;
 
 const uid = crypto.getRandomValues(new Uint16Array(3)).join("-");
 let isDetected = false;
